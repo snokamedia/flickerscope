@@ -1,0 +1,40 @@
+import { AppState } from './types';
+
+const state: AppState = {
+  view: 'upload',
+  file: null,
+  metadata: null,
+  segment: null,
+  results: null,
+  error: null,
+  progress: null,
+};
+
+type Listener = () => void;
+const listeners = new Set<Listener>();
+
+export function getState(): Readonly<AppState> {
+  return state;
+}
+
+export function setState(partial: Partial<AppState>) {
+  Object.assign(state, partial);
+  listeners.forEach((fn) => fn());
+}
+
+export function subscribe(fn: Listener) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+export function resetState() {
+  setState({
+    view: 'upload',
+    file: null,
+    metadata: null,
+    segment: null,
+    results: null,
+    error: null,
+    progress: null,
+  });
+}

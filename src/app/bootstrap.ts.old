@@ -1,0 +1,88 @@
+import { openVideoFile } from '../media/mediabunny-input';
+import { measureFps } from '../media/frame-extractor';
+import { setupDropzone } from '../ui/upload-dropzone';
+import { showMetadata } from '../ui/metadata-panel';
+import { setupTimeline, setTimelineDuration, setPlayheadPosition } from '../ui/timeline';
+import { setupPreviewPlayer, loadPreviewVideo, seekPreview } from '../ui/preview-player';
+import { setupAnalysisControls } from '../ui/analysis-controls';
+import { setState, getState, resetState } from './state';
+import { terminateWorker } from '../analysis/analysis-worker-client';
+import type { VideoMetadata, Segment } from './types';
+
+export function bootstrapApp() {
+  setupDropzone(handleFile);
+  setupTimeline({
+    onSegmentChange: handleSegmentChange,
+    onSeek: seekPreview,
+  });
+  setupPreviewPlayer(handlePreviewTime);
+  setupAnalysisControls();
+}
+
+async function handleFile(file: File) {
+  resetState();
+  terminateWorker();
+
+  setState({ view: 'analyzing', file });
+
+  try {
+    const { videoTrack, duration } = await openVideoFile(file);
+
+    const codecInfo = await videoTrack.getCodec();
+    const codec = codecInfo ?? 'unknown';
+
+    const fpsMeasured = await measureFps(videoTrack);
+    const displayWidth = await videoTrack.getDisplayWidth();
+    const displayHeight = await videoTrack.getDisplayHeight();
+
+    const metadata: VideoMetadata = {
+      duration,
+      fpsMeasured,
+      width: displayWidth,
+      height: displayHeight,
+      codec,
+    };
+
+    setState({ metadata, view: 'metadata' });
+    showMetadata(metadata);
+
+    document.getElementById('timeline-section')?.classList.remove('hidden');
+
+    setTimelineDuration(duration);
+
+    const url = URL.createObjectURL(file);
+    loadPreviewVideo(url);
+
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Failed to load video';
+    setState({ error: msg, view: 'upload' });
+    showError(msg);
+  }
+}
+
+function handleSegmentChange(segment: Segment) {
+  setState({ segment });
+}
+
+function handlePreviewTime(t: number) {
+  setPlayheadPosition(t);
+}
+
+function showError(msg: string) {
+  const app = document.getElementById('app');
+  const existing = document.getElementById('error-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'error-toast';
+  toast.style.cssText = `
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--danger); color: white; padding: 12px 20px;
+    border-radius: var(--radius); font-size: 0.85rem;
+    max-width: 90%; z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  `;
+  toast.textContent = msg;
+  app?.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
+}

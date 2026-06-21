@@ -1,0 +1,13 @@
+type Handler = (...args: any[]) => void;
+
+const handlers = new Map<string, Set<Handler>>();
+
+export function on(event: string, fn: Handler) {
+  if (!handlers.has(event)) handlers.set(event, new Set());
+  handlers.get(event)!.add(fn);
+  return () => handlers.get(event)?.delete(fn);
+}
+
+export function emit(event: string, ...args: any[]) {
+  handlers.get(event)?.forEach((fn) => fn(...args));
+}
