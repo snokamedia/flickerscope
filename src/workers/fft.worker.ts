@@ -814,12 +814,17 @@ function findSpectrumPeaks(freqs: number[], powers: number[]): PeakInfo[] {
   /* ---- Step 3: Sort by descending power ---- */
   rawPeaks.sort((a, b) => b.power - a.power);
 
-  /* ---- Step 4: Merge peaks within 2 bins ---- */
-  /* Bin-distance merge is more predictable than a fixed-Hz threshold when
-     the bin width varies with sample rate or FFT size. */
+  /* ---- Step 4: Merge peaks within ~2.5 Hz ---- */
+  /* The merge radius is derived from a fixed Hz target and converted to bins
+     using ceil(), which adapts to varying bin widths while maintaining a
+     consistent physical frequency window.  2.5 Hz covers the typical main
+     lobe spread of a Hann window at real-world flicker signals without being
+     aggressive enough to collapse genuinely distinct nearby components. */
+  const targetMergeHz = 2.5;
+  const mergeBinRadius = Math.max(1, Math.ceil(targetMergeHz / binWidth));
   const merged: RawPeak[] = [];
   for (const p of rawPeaks) {
-    if (!merged.some(u => Math.abs(u.index - p.index) <= 2)) {
+    if (!merged.some(u => Math.abs(u.index - p.index) <= mergeBinRadius)) {
       merged.push(p);
     }
   }
