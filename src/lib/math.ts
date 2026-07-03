@@ -24,7 +24,9 @@ export function getPeakLabel(fundamentalHz: number, peakFreq: number, peakIndex:
   }
 
   const subN = Math.round(fundamentalHz / peakFreq);
-  if (subN >= 2) {
+  /* Cap subharmonic label to orders 2-6 to avoid absurd labels like /23
+     when a noise peak aligns with a distant submultiple by coincidence. */
+  if (subN >= 2 && subN <= 6) {
     const err = Math.abs(peakFreq * subN - fundamentalHz);
     if (err <= Math.max(1, fundamentalHz * 0.01)) return 'subharmonic';
   }

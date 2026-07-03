@@ -241,21 +241,7 @@ function computeFlickerMetrics(
   const peakIndex = powers.indexOf(Math.max(...powers));
   const peakPowerValue = powers[peakIndex] || 0;
 
-  let dominantHz = 0;
-  if (peakIndex > 0 && peakIndex < powers.length - 1 && peakPowerValue > 0) {
-    const a = powers[peakIndex - 1];
-    const b = powers[peakIndex];
-    const c = powers[peakIndex + 1];
-    const denom = a - 2 * b + c;
-    if (Math.abs(denom) > 1e-12) {
-      const delta = 0.5 * (a - c) / denom;
-      dominantHz = freqs[peakIndex] + delta * binWidth;
-    } else {
-      dominantHz = freqs[peakIndex];
-    }
-  } else {
-    dominantHz = freqs[peakIndex] || 0;
-  }
+  let dominantHz = interpolatePeak(freqs, powers, peakIndex, binWidth);
 
   /* ---- Step 9: Harmonic peak detection ---- */
   /* Prominence-based detection with noise floor from trimmed median.
@@ -721,6 +707,26 @@ function computeTimingMetrics(
 /* ================================================================== */
 
 /**
+ * Parabolic interpolation for sub-bin frequency precision.
+ * Returns the interpolated peak frequency given its three-bin neighborhood.
+ * Falls back to the raw bin center if the fit is degenerate.
+ */
+function interpolatePeak(freqs: number[], powers: number[], index: number, binWidth: number): number {
+  if (index > 0 && index < powers.length - 1 && powers[index] > 0) {
+    const a = powers[index - 1];
+    const b = powers[index];
+    const c = powers[index + 1];
+    const denom = a - 2 * b + c;
+    if (Math.abs(denom) > 1e-12) {
+      let delta = 0.5 * (a - c) / denom;
+      delta = Math.max(-0.5, Math.min(0.5, delta));
+      return freqs[index] + delta * binWidth;
+    }
+  }
+  return freqs[index] || 0;
+}
+
+/**
  * Prominence-based peak detection in the power spectrum.
  *
  * Algorithm:
@@ -772,7 +778,12 @@ function findSpectrumPeaks(freqs: number[], powers: number[]): PeakInfo[] {
   }
 
   /* ---- Step 2: Compute prominence for each candidate ---- */
-  const peaks: PeakInfo[] = [];
+  /* Internal raw-peak type that preserves bin index for post-merge
+     interpolation.  Interpolating AFTER merge ensures the merge/dedup
+     step uses stable bin-center frequencies, preventing minor sub-bin
+     shifts from affecting which peaks are merged. */
+  interface RawPeak { index: number; power: number; }
+  const rawPeaks: RawPeak[] = [];
 
   for (const c of candidates) {
     /* Left valley: minimum power within radius bins to the left */
@@ -796,24 +807,31 @@ function findSpectrumPeaks(freqs: number[], powers: number[]): PeakInfo[] {
     const prominence = c.power - base;
 
     if (prominence > noiseFloor * 1.5) {
-      peaks.push({
-        freq: freqs[c.index],
-        power: c.power,
-        normalizedMagnitude: 0,
-      });
+      rawPeaks.push({ index: c.index, power: c.power });
     }
   }
 
   /* ---- Step 3: Sort by descending power ---- */
-  peaks.sort((a, b) => b.power - a.power);
+  rawPeaks.sort((a, b) => b.power - a.power);
 
-  /* ---- Step 4: Merge peaks within 2 Hz ---- */
-  /* This deduplicates adjacent-bin splitting from zero-padding interpolation. */
-  const unique: PeakInfo[] = [];
-  for (const p of peaks) {
-    if (!unique.some(u => Math.abs(u.freq - p.freq) < 2)) {
-      unique.push(p);
+  /* ---- Step 4: Merge peaks within 2 bins ---- */
+  /* Bin-distance merge is more predictable than a fixed-Hz threshold when
+     the bin width varies with sample rate or FFT size. */
+  const merged: RawPeak[] = [];
+  for (const p of rawPeaks) {
+    if (!merged.some(u => Math.abs(u.index - p.index) <= 2)) {
+      merged.push(p);
     }
+  }
+
+  /* ---- Step 5: Interpolate each merged peak from its bin index ---- */
+  const peaks: PeakInfo[] = [];
+  for (const p of merged) {
+    peaks.push({
+      freq: interpolatePeak(freqs, powers, p.index, binWidth),
+      power: p.power,
+      normalizedMagnitude: 0,
+    });
   }
 
   /* Normalize magnitudes relative to the strongest prominent peak.
@@ -821,12 +839,12 @@ function findSpectrumPeaks(freqs: number[], powers: number[]): PeakInfo[] {
      the ambiguity check (topPeaks[1].power / topPeaks[0].power > 0.7)
      matches the UI display.  The global max bin may include non-prominent
      DC leakage or sidelobe energy that would shrink all displayed ratios. */
-  const maxPeakPower = unique.length > 0 ? unique[0].power : 1;
-  for (const p of unique) {
+  const maxPeakPower = peaks.length > 0 ? peaks[0].power : 1;
+  for (const p of peaks) {
     p.normalizedMagnitude = p.power / maxPeakPower;
   }
 
-  return unique.slice(0, 5);
+  return peaks.slice(0, 5);
 }
 
 /* ================================================================== */

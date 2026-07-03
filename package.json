@@ -12,19 +12,19 @@
   "dependencies": {
     "@base-ui/react": "^1.0.0-rc.0",
     "fft.js": "^4.0.4",
-    "lucide-react": "^0.511.0",
-    "mediabunny": "^1.49.0",
+    "lucide-react": "^1.23.0",
+    "mediabunny": "^1.50.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "uplot": "^1.6.31"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.6",
+    "@tailwindcss/vite": "^4.3.2",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
-    "tailwindcss": "^4.1.6",
+    "@vitejs/plugin-react": "^4.5.2",
+    "tailwindcss": "^4.3.2",
     "typescript": "~5.7.3",
-    "vite": "^6.4.3",
-    "@vitejs/plugin-react": "^4.5.2"
+    "vite": "^6.4.3"
   }
 }
