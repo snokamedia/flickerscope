@@ -50,7 +50,7 @@ export function UploadDropzone({ onFile, disabled }: Props) {
         href="https://github.com/snokamedia/flickerscope/wiki/Capturing-Video-for-FlickerScope"
         target="_blank"
         rel="noopener noreferrer"
-        className="mb-4 inline-flex items-center gap-1 text-xs text-accent transition-colors hover:text-cyan-300"
+        className="mb-4 flex items-center justify-center gap-1 text-xs text-accent transition-colors hover:text-cyan-300"
       >
         <ExternalLink className="size-3" />
         Capture guide &mdash; how to record the right video
