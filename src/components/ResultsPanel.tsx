@@ -3,7 +3,6 @@ import {
   AlertTriangle, CheckCircle2, HelpCircle, AlertOctagon, Activity, ShieldCheck, Info,
 } from 'lucide-react';
 import type { FlickerMetrics, MpProxyResult } from '../app/types';
-import { formatPeakLabel } from '../lib/math';
 
 type Props = {
   results: FlickerMetrics;
@@ -107,16 +106,12 @@ export function ResultsPanel({ results }: Props) {
           <div className="space-y-0.5">
             {results.topPeaks.slice(0, 5).map((p, i) => {
               const pct = Math.min(100, p.normalizedMagnitude * 100);
-              const label = formatPeakLabel(results.frequencyHz, p.freq, i);
               return (
                 <div key={i} className="flex items-center gap-2 text-xs">
                   <span className="w-14 shrink-0 text-right font-mono tabular-nums text-text-main">
                     {p.freq.toFixed(1)}
                   </span>
                   <span className="w-5 text-text-dim">Hz</span>
-                  {label !== 'Fundamental' && (
-                    <span className="w-20 text-[10px] text-text-dim">{label}</span>
-                  )}
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-border">
                     <div
                       className="h-full rounded-full transition-all"
@@ -128,7 +123,7 @@ export function ResultsPanel({ results }: Props) {
                       }}
                     />
                   </div>
-                  <span className="w-10 shrink-0 text-right font-mono tabular-nums text-text-dim">
+                  <span className="w-[4.5rem] shrink-0 text-right font-mono tabular-nums text-text-dim">
                     {pct >= 0.001 ? pct.toFixed(3) : '< 0.001'}%
                   </span>
                 </div>
