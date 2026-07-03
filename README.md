@@ -128,6 +128,8 @@ See the [Capturing Video for FlickerScope](https://github.com/snokamedia/flicker
 
 The usable analysis band is constrained by the Nyquist limit, which is half the effective frame rate. At 240 fps, the Nyquist limit is 120 Hz. Frequencies near Nyquist are less reliable than frequencies comfortably below it, especially in a camera-based workflow.
 
+For the most common consumer use case — screening mains-powered LED lighting — the dominant flicker component is typically at 100 Hz (50 Hz mains) or 120 Hz (60 Hz mains). Captured at 240 fps, 120 Hz sits right at Nyquist. In this case, **modulation depth is the primary screening metric** (IEEE 1789 low-risk ceiling ≈ 0.08 × f, roughly 8–10% at these frequencies). Harmonic structure, timing jitter, and exact waveform shape carry lower confidence near the sampling limit and should be treated as secondary diagnostics. Despite the Nyquist constraint, this still supports a practical low-concern vs. higher-concern judgment aligned with IEEE-style modulation thresholds at the detected frequency.
+
 ### Practical advice
 
 - For mains-related flicker screening, 240 fps is the preferred starting point.
