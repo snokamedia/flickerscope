@@ -129,7 +129,7 @@ export function ResultsPanel({ results }: Props) {
                     />
                   </div>
                   <span className="w-10 shrink-0 text-right font-mono tabular-nums text-text-dim">
-                    {pct >= 0.1 ? pct.toFixed(1) : '< 0.1'}%
+                    {pct >= 0.001 ? pct.toFixed(3) : '< 0.001'}%
                   </span>
                 </div>
               );
