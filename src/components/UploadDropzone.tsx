@@ -1,5 +1,5 @@
 import { type DragEvent, type ChangeEvent, useState } from 'react';
-import { Upload } from 'lucide-react';
+import { Upload, ExternalLink } from 'lucide-react';
 
 type Props = {
   onFile: (file: File) => void;
@@ -46,6 +46,15 @@ export function UploadDropzone({ onFile, disabled }: Props) {
       <p className="mb-4 text-[11px] text-text-dim">
         Hold phone steady &mdash; fill frame with the light source
       </p>
+      <a
+        href="https://github.com/snokamedia/flickerscope/wiki/Capturing-Video-for-FlickerScope"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-4 inline-flex items-center gap-1 text-xs text-accent transition-colors hover:text-cyan-300"
+      >
+        <ExternalLink className="size-3" />
+        Capture guide &mdash; how to record the right video
+      </a>
       <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-black transition hover:bg-cyan-300 w-full sm:w-auto">
         <Upload className="size-4" />
         Choose file
