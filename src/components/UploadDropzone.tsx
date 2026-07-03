@@ -43,14 +43,11 @@ export function UploadDropzone({ onFile, disabled }: Props) {
       <p className="mb-1 text-xs text-text-muted">
         Ideally 240 fps, 1–3 seconds &middot; H.264 / H.265 / VP9
       </p>
-      <p className="mb-4 text-[11px] text-text-dim">
-        Hold phone steady &mdash; fill frame with the light source
-      </p>
       <a
         href="https://github.com/snokamedia/flickerscope/wiki/Capturing-Video-for-FlickerScope"
         target="_blank"
         rel="noopener noreferrer"
-        className="mb-4 flex items-center justify-center gap-1 text-xs text-accent transition-colors hover:text-cyan-300"
+        className="my-4 flex items-center justify-center gap-1 text-xs text-accent transition-colors hover:text-cyan-300"
       >
         <ExternalLink className="size-3" />
         Capture guide &mdash; how to record the right video
