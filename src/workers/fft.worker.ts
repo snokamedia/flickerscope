@@ -246,7 +246,23 @@ function computeFlickerMetrics(
   /* ---- Step 9: Harmonic peak detection ---- */
   /* Prominence-based detection with noise floor from trimmed median.
      See findSpectrumPeaks for detailed rationale. */
-  const topPeaks = findSpectrumPeaks(freqs, powers);
+  const prominencePeaks = findSpectrumPeaks(freqs, powers);
+
+  /* Merge: the global max bin is authoritative.  Any prominence-detected
+     peak within 2.5 Hz is the same physical peak — replace with the
+     louder interpolated ground truth and discard duplicates. */
+  const mergedPeaks: PeakInfo[] = [{
+    freq: dominantHz,
+    power: peakPowerValue,
+    normalizedMagnitude: 0,
+  }];
+  for (const p of prominencePeaks) {
+    if (Math.abs(p.freq - dominantHz) <= 2.5) continue;
+    mergedPeaks.push(p);
+  }
+  const maxPow = mergedPeaks[0].power;
+  for (const p of mergedPeaks) p.normalizedMagnitude = p.power / maxPow;
+  const topPeaks = mergedPeaks.slice(0, 5);
 
   /* ---- Step 10: Confidence scoring ---- */
   /* Combines peak prominence ratio, Nyquist proximity, and cycle count
