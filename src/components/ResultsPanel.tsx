@@ -1,6 +1,6 @@
 import { Popover } from '@base-ui/react/popover';
 import {
-  AlertTriangle, CheckCircle2, HelpCircle, AlertOctagon, Activity, ShieldCheck, Info,
+  AlertTriangle, CheckCircle2, HelpCircle, AlertOctagon, Activity, ShieldCheck, Info, MinusCircle,
 } from 'lucide-react';
 import type { FlickerMetrics, MpProxyResult } from '../app/types';
 
@@ -9,6 +9,11 @@ type Props = {
 };
 
 const VERDICT_CONFIG = {
+  none: {
+    icon: <MinusCircle className="size-5 text-text-dim" />,
+    label: 'No discernible frequency found',
+    color: 'bg-text-dim/10 text-text-dim border-text-dim/20',
+  },
   noel: {
     icon: <ShieldCheck className="size-5 text-safe" />,
     label: 'No observable effect',
@@ -49,17 +54,23 @@ export function ResultsPanel({ results }: Props) {
       <div className={`flex items-start gap-3 rounded-lg border p-4 ${vc.color}`}>
         <div className="mt-0.5 shrink-0">{vc.icon}</div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span className="font-mono text-2xl font-bold tabular-nums">
-              {results.modulationPercent.toFixed(1)}%
-            </span>
-            <span className="text-sm text-text-muted">
-              Modulation at {results.frequencyHz.toFixed(1)} Hz
-            </span>
-            <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase">
-              {vc.label}
-            </span>
-          </div>
+          {results.verdict === 'none' ? (
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-semibold">{vc.label}</span>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="font-mono text-2xl font-bold tabular-nums">
+                {results.modulationPercent.toFixed(1)}%
+              </span>
+              <span className="text-sm text-text-muted">
+                Modulation at {results.frequencyHz.toFixed(1)} Hz
+              </span>
+              <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase">
+                {vc.label}
+              </span>
+            </div>
+          )}
           {results.riskNotes.length > 0 && (
             <div className="mt-2 space-y-1">
               {results.riskNotes.map((n, i) => (
@@ -79,6 +90,7 @@ export function ResultsPanel({ results }: Props) {
       </div>
 
       {/* ---- IEEE 1789 position indicator ---- */}
+      {results.verdict !== 'none' && (
       <StatPanel icon={<Info className="size-3.5" />} title="IEEE 1789-2015 risk assessment">
         <div className="space-y-1 text-xs text-text-muted">
           <p>
@@ -99,6 +111,7 @@ export function ResultsPanel({ results }: Props) {
           </ul>
         </div>
       </StatPanel>
+      )}
 
       {/* ---- Spectrum peaks ---- */}
       {results.topPeaks.length > 0 && (
@@ -144,7 +157,7 @@ export function ResultsPanel({ results }: Props) {
       )}
 
       {/* ---- Timing ---- */}
-      {results.timing && (
+      {results.timing && results.verdict !== 'none' && (
         <StatPanel icon={<Activity className="size-3.5" />} title="Timing">
           <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
             <StatWithPopover

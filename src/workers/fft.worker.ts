@@ -46,7 +46,7 @@ interface WorkerInput {
   luminance: ArrayBuffer;
 }
 
-type VerdictLabel = 'noel' | 'low-risk' | 'elevated' | 'high' | 'uncertain';
+type VerdictLabel = 'none' | 'noel' | 'low-risk' | 'elevated' | 'high' | 'uncertain';
 
 interface WorkerOutput {
   frequencyHz: number;
@@ -280,10 +280,37 @@ function computeFlickerMetrics(
   /* Map IEEE 1789 risk level to verdict.
      Above 100 Hz, 'elevated' maps to 'high' using an app-defined
      0.20 × f high-concern threshold — not part of IEEE 1789. */
-  const verdict: VerdictLabel = riskLevel;
+  let verdict: VerdictLabel = riskLevel;
 
   /* ---- Step 12: Assemble notes (split by category) ---- */
   const riskNotesArr: string[] = [...riskNotes];
+
+  /* ---- No-flicker gate ---- */
+  /* A steady (non-flickering) light produces noise-driven FFT peaks that
+     can register as a false positive.  Reject the detection when either
+     the peak stands too weakly above the noise floor or the actual
+     amplitude modulation is trivially small. */
+  const excludeRange = 15;
+  const noiseBins: number[] = [];
+  for (let i = 0; i < powers.length; i++) {
+    if (Math.abs(i - peakIndex) > excludeRange) {
+      noiseBins.push(powers[i]);
+    }
+  }
+  const sortedNoise = noiseBins.length > 0
+    ? [...noiseBins].sort((a, b) => a - b)
+    : [peakPowerValue * 0.01];
+  const noiseFloor = sortedNoise[Math.floor(sortedNoise.length / 2)];
+  const pnr = noiseFloor > 0 ? peakPowerValue / noiseFloor : 1;
+  const pnrDb = 10 * Math.log10(pnr);
+
+  if (pnrDb < 10 || modulationPercent < 1.0) {
+    verdict = 'none';
+    riskNotesArr.push(
+      'No discernible frequency found — the light source appears to be steady ' +
+      '(very low modulation or no significant peak above the noise floor)',
+    );
+  }
 
   const spectralNotes: string[] = [];
   if (topPeaks.length > 1) {

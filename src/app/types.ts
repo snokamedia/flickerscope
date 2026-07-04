@@ -33,7 +33,7 @@ export type TimingMetrics = {
   crossingFrequency: number;
 };
 
-export type VerdictLabel = 'noel' | 'low-risk' | 'elevated' | 'high' | 'uncertain';
+export type VerdictLabel = 'none' | 'noel' | 'low-risk' | 'elevated' | 'high' | 'uncertain';
 
 export type FlickerMetrics = {
   frequencyHz: number;

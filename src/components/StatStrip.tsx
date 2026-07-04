@@ -24,9 +24,11 @@ export function StatStrip({ metadata, results }: Props) {
     },
     {
       label: 'Flicker',
-      value: `${results.frequencyHz.toFixed(1)} Hz`,
-      highlight: true,
-      explanation: `Dominant flicker frequency detected via FFT with parabolic interpolation for sub-bin precision. The highest peak in the power spectrum after prominence-based filtering (trimmed-median noise floor, 5 Hz prominence radius). Direct flicker is perceptible mainly below ~80 Hz; higher frequencies cause stroboscopic effects. Nyquist limit: ${(results.effectiveSampleRate / 2).toFixed(0)} Hz.`,
+      value: results.verdict === 'none' ? '—' : `${results.frequencyHz.toFixed(1)} Hz`,
+      highlight: results.verdict !== 'none',
+      explanation: results.verdict === 'none'
+        ? 'No discernible dominant frequency — the light source appears to be steady (modulation or peak-to-noise ratio below detection threshold).'
+        : `Dominant flicker frequency detected via FFT with parabolic interpolation for sub-bin precision. The highest peak in the power spectrum after prominence-based filtering (trimmed-median noise floor, 5 Hz prominence radius). Direct flicker is perceptible mainly below ~80 Hz; higher frequencies cause stroboscopic effects. Nyquist limit: ${(results.effectiveSampleRate / 2).toFixed(0)} Hz.`,
     },
     {
       label: 'Duty cycle',
