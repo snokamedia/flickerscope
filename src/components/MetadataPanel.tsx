@@ -9,9 +9,10 @@ export function MetadataPanel({ metadata }: Props) {
   const codecSupported = ['avc', 'hevc', 'vp9', 'av1'].includes(metadata.codec);
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
       <Stat label="Resolution" value={`${metadata.width} × ${metadata.height}`} />
       <Stat label="Duration" value={`${metadata.duration.toFixed(1)}s`} />
+      <Stat label="Frames" value={`${metadata.frameCount}`} />
       <Stat
         label="Frame rate"
         value={`${metadata.fpsDecoded.toFixed(1)} fps`}

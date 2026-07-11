@@ -30,7 +30,7 @@ export function useVideoFile() {
 
       const codecInfo = await videoTrack.getCodec();
       const codec = codecInfo ?? 'unknown';
-      const { fpsAverage } = await getTrackFrameRateInfo(videoTrack);
+      const { fpsAverage, packetCount } = await getTrackFrameRateInfo(videoTrack);
       const { isVfrLikely, fpsDecoded } = await detectVariableFrameRate(videoTrack);
       const displayWidth = await videoTrack.getDisplayWidth();
       const displayHeight = await videoTrack.getDisplayHeight();
@@ -39,6 +39,7 @@ export function useVideoFile() {
         duration,
         fpsAverage,
         fpsDecoded,
+        frameCount: packetCount,
         isVfrLikely,
         width: displayWidth,
         height: displayHeight,
