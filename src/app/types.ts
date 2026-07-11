@@ -2,6 +2,7 @@ export type VideoMetadata = {
   duration: number;
   fpsNominal?: number;
   fpsAverage: number;
+  fpsDecoded: number;
   isVfrLikely: boolean;
   width: number;
   height: number;

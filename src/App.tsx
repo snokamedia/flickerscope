@@ -37,7 +37,7 @@ export default function App() {
   }, [video.file, video.metadata, segment, analysis]);
 
   const canAnalyze = !!(video.file && video.metadata && segment && !analysis.running);
-  const fpsAvg = video.metadata?.fpsAverage ?? 0;
+  const fpsAvg = video.metadata?.fpsDecoded ?? video.metadata?.fpsAverage ?? 0;
   const fpsTier = fpsAvg < 120 ? 'reject' : fpsAvg < 240 ? 'limited' : 'adequate';
 
   return (
@@ -60,21 +60,21 @@ export default function App() {
           <MetadataPanel metadata={video.metadata} />
           {fpsTier === 'reject' && (
             <div className="rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-xs text-danger">
-              Frame rate ({video.metadata.fpsAverage.toFixed(1)} fps) is too low for flicker
+              Frame rate ({fpsAvg.toFixed(1)} fps) is too low for flicker
               analysis. Minimum 120 fps required. Use a slow-motion mode (240 fps or higher).
             </div>
           )}
           {fpsTier === 'limited' && (
             <div className="rounded-lg border border-warning/20 bg-warning/5 px-3 py-2 text-xs text-warning">
-              Frame rate ({video.metadata.fpsAverage.toFixed(1)} fps) limits analysis to
+              Frame rate ({fpsAvg.toFixed(1)} fps) limits analysis to
               low frequencies (≤ ~60 Hz). 100/120 Hz driver flicker may alias.
               {' '}<strong>240+ fps recommended</strong>.
             </div>
           )}
           {fpsTier === 'adequate' && (
             <div className="rounded-lg border border-accent/20 bg-accent-dim/30 px-3 py-2 text-xs text-accent">
-              Frame rate ({video.metadata.fpsAverage.toFixed(1)} fps) is suitable for
-              flicker analysis. Nyquist limit: {((video.metadata.fpsAverage / 2)).toFixed(0)} Hz.
+              Frame rate ({fpsAvg.toFixed(1)} fps) is suitable for
+              flicker analysis. Nyquist limit: {(fpsAvg / 2).toFixed(0)} Hz.
             </div>
           )}
         </section>

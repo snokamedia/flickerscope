@@ -14,8 +14,16 @@ export function MetadataPanel({ metadata }: Props) {
       <Stat label="Duration" value={`${metadata.duration.toFixed(1)}s`} />
       <Stat
         label="Frame rate"
-        value={`${metadata.fpsAverage.toFixed(1)} fps`}
-        help={metadata.isVfrLikely ? 'variable frame rate' : metadata.fpsNominal ? `nominal ${metadata.fpsNominal} fps` : 'average'}
+        value={`${metadata.fpsDecoded.toFixed(1)} fps`}
+        help={
+          metadata.isVfrLikely
+            ? 'variable frame rate'
+            : Math.abs(metadata.fpsDecoded - metadata.fpsAverage) > 5
+              ? `container reports ${metadata.fpsAverage.toFixed(0)} fps`
+              : metadata.fpsNominal
+                ? `nominal ${metadata.fpsNominal} fps`
+                : undefined
+        }
       />
       <Stat
         label="Codec"

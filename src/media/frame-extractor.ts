@@ -38,7 +38,7 @@ export async function getTrackFrameRateInfo(
 export async function detectVariableFrameRate(
   videoTrack: InputVideoTrack,
   sampleCount = 180,
-): Promise<{ isVfrLikely: boolean; variability: number }> {
+): Promise<{ isVfrLikely: boolean; variability: number; fpsDecoded: number }> {
   const sink = new VideoSampleSink(videoTrack);
   const ts: number[] = [];
 
@@ -48,7 +48,7 @@ export async function detectVariableFrameRate(
     if (ts.length >= sampleCount) break;
   }
 
-  if (ts.length < 3) return { isVfrLikely: false, variability: 0 };
+  if (ts.length < 3) return { isVfrLikely: false, variability: 0, fpsDecoded: 0 };
 
   const dts: number[] = [];
   for (let i = 1; i < ts.length; i++) {
@@ -60,8 +60,13 @@ export async function detectVariableFrameRate(
   const variance = dts.reduce((a, b) => a + (b - mean) ** 2, 0) / dts.length;
   const cv = Math.sqrt(variance) / mean;
 
-  // Heuristic CV threshold described above
-  return { isVfrLikely: cv > 0.02, variability: cv };
+  dts.sort((a, b) => a - b);
+  const mid = Math.floor(dts.length / 2);
+  const medianDt = dts.length % 2 !== 0
+    ? dts[mid]
+    : (dts[mid - 1] + dts[mid]) / 2;
+
+  return { isVfrLikely: cv > 0.02, variability: cv, fpsDecoded: 1 / medianDt };
 }
 
 /**
@@ -82,7 +87,7 @@ export async function extractLuminanceSamples(
   onProgress?: (current: number, total: number) => void,
 ): Promise<LuminanceSample[]> {
   const samples: LuminanceSample[] = [];
-  const fps = metadata.fpsAverage;
+  const fps = metadata.fpsDecoded || metadata.fpsAverage;
   const totalFrames = Math.round((endTime - startTime) * fps);
 
   const sink = new VideoSampleSink(videoTrack);

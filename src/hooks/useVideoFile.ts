@@ -31,13 +31,14 @@ export function useVideoFile() {
       const codecInfo = await videoTrack.getCodec();
       const codec = codecInfo ?? 'unknown';
       const { fpsAverage } = await getTrackFrameRateInfo(videoTrack);
-      const { isVfrLikely } = await detectVariableFrameRate(videoTrack);
+      const { isVfrLikely, fpsDecoded } = await detectVariableFrameRate(videoTrack);
       const displayWidth = await videoTrack.getDisplayWidth();
       const displayHeight = await videoTrack.getDisplayHeight();
 
       const metadata: VideoMetadata = {
         duration,
         fpsAverage,
+        fpsDecoded,
         isVfrLikely,
         width: displayWidth,
         height: displayHeight,
