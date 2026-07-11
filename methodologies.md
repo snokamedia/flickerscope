@@ -953,13 +953,20 @@ The current gate uses three criteria checked in order:
 
 If any criterion fails, the verdict is set to `none` and the result is reported as "No discernible frequency found."
 
-**Future improvements (not yet implemented):**
+### 18.9 Low-frequency artifact gate (camera shake)
 
-- **Autocorrelation periodicity check:** Compute the normalized autocorrelation of the detrended signal at the candidate period. A real periodic source produces a clear autocorrelation peak (> 0.3–0.4); white noise decorrelates immediately. This directly tests "does the signal repeat?" — the fundamental question that threshold-based tests only approximate.
-- **Spectral concentration check:** Measure what fraction of total non-DC power lies within a narrow band (±2 bins) around the dominant frequency. Real flicker concentrates energy (> 30%); sensor noise spreads it broadly (< 10–15%). This discriminates between a structured periodic source and a diffuse noise spectrum.
-- **Multi-window consistency vote:** Split the segment into overlapping sub-windows and require the dominant frequency to be stable across them. True flicker persists across time windows; noise peaks wander.
+Handheld camera shake can produce quasi-periodic luminance oscillations in the 5–10 Hz range. Because the motion is real (not noise), it passes all spectral filters: PNR may be high, the peak is sharp, and Welch frequency stability confirms consistency across sub-windows. The resulting detection looks spectrally identical to genuine low-frequency electrical flicker.
 
-These stages would further reduce false positives without raising static thresholds that could miss real weak flicker.
+The gate uses the perceptual MP proxy as an orthogonal discriminator:
+
+- **Frequency:** dominant frequency < 15 Hz (below typical mains frequencies, into shake territory).
+- **MP_proxy score:** < 0.3 (below typical detection threshold with MDT temporal contrast sensitivity weighting).
+- **Modulation depth:** < 3% (low amplitude, unlikely to be meaningful electrical flicker).
+- **Harmonic safeguard:** If any strong harmonic peak (> 10% of fundamental power) exists, the source has electrical waveform structure and passes through regardless of MP_proxy score.
+
+When all conditions are met, the verdict is set to `uncertain` with a note explaining the ambiguity. The gate does **not** suppress detections with significant harmonic content, maintaining sensitivity to genuine non-sinusoidal low-frequency sources.
+
+**Design rationale.** This is not a universal flicker-absence detector; it is a targeted veto for a specific verified failure mode: weak, quasi-sinusoidal low-frequency modulation from handheld video. The MP proxy was chosen because it is already computed and independently validated (see §16), and MDT weighting inherently penalizes frequencies where the visual system is less sensitive. The gate is deliberately narrow (< 15 Hz, < 3%, < 0.3) to avoid false suppression of real flicker.
 
 ---
 

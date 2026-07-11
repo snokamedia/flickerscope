@@ -272,12 +272,18 @@ function computeFlickerMetrics(
   for (const p of mergedPeaks) p.normalizedMagnitude = p.power / maxPow;
   const topPeaks = mergedPeaks.slice(0, 5);
 
-  /* ---- Step 10: Confidence scoring ---- */
-  /* Combines peak prominence ratio, Nyquist proximity, and cycle count
-     into a single [0, 1] confidence value. */
+  /* ---- Step 10: Welch frequency stability (Stage 2) ---- */
+  /* Multi-window consistency check across overlapping sub-segments.
+     Real flicker is frequency-stable; camera shake produces drift.
+     Passes the resampled signal directly for independent sub-analysis. */
+  const welchStability = computeFrequencyStability(resampled, effectiveSampleRate, dominantHz);
+
+  /* ---- Step 11: Confidence scoring ---- */
+  /* Five-factor composite: local PNR, Nyquist proximity, cycle count,
+     spectral concentration, and Welch frequency stability. */
   const confidence = computeConfidence(
     dominantHz, peakPowerValue, peakIndex,
-    freqs, powers, timestamps, effectiveSampleRate,
+    freqs, powers, timestamps, effectiveSampleRate, welchStability,
   );
 
   /* ---- Step 11: Verdict via IEEE 1789-2015 inspired risk function ---- */
@@ -374,6 +380,31 @@ function computeFlickerMetrics(
   const mpProxyResult = computeMpProxy(
     timestamps, luminance, effectiveSampleRate, 3, 80,
   );
+
+  /* ---- Step 14: Low-frequency artifact gate ---- */
+  /* Handheld camera shake can produce quasi-periodic luminance oscillations
+     around 5-10 Hz that pass all spectral filters (PNR, concentration,
+     Welch stability) and look spectrally identical to real low-frequency
+     flicker.  Cross-check against the perceptual MP proxy: if the score
+     is very low (< 0.3, below typical detection threshold with MDT
+     weighting), the modulation is weak (< 3%), and the frequency is in
+     the shake-prone band (< 15 Hz), the detection is likely a camera
+     artifact.
+     As an extra safeguard, if there is a strong harmonic peak (> 10% of
+     fundamental), the source has electrical waveform structure and passes
+     through even if MP_proxy is low. */
+  if (verdict !== 'none' && dominantHz < 15 && mpProxyResult && mpProxyResult.value < 0.3 && modulationPercent < 3) {
+    const hasHarmonics = topPeaks.some(
+      (p, i) => i > 0 && Math.round(p.freq / dominantHz) >= 2 && (p.power / topPeaks[0].power) > 0.1,
+    );
+    if (!hasHarmonics) {
+      verdict = 'uncertain';
+      riskNotesArr.push(
+        'Low-frequency weak modulation with very low perceptual score — ' +
+        'may be camera-induced artifact rather than electrical flicker',
+      );
+    }
+  }
 
   return {
     frequencyHz: dominantHz,
@@ -777,6 +808,103 @@ function interpolatePeak(freqs: number[], powers: number[], index: number, binWi
   return freqs[index] || 0;
 }
 
+/* ================================================================== */
+/*  Welch frequency stability scoring (Stage 2)                         */
+/* ================================================================== */
+
+/**
+ * Multi-window frequency stability scoring.
+ *
+ * Divides the resampled signal into overlapping sub-windows (50% overlap),
+ * computes the dominant frequency for each window via FFT, and scores
+ * how consistent the frequency is across windows.
+ *
+ * Real electrical flicker is frequency-stable across the clip; camera
+ * shake or transient motion produces frequency drift or instability.
+ *
+ * Returns a [0, 1] score combining:
+ *   - Agreement with the global dominant frequency
+ *   - Low frequency dispersion (CV of window frequencies)
+ */
+function computeFrequencyStability(
+  signal: Float64Array,
+  sampleRateHz: number,
+  dominantHz: number,
+): number {
+  const n = signal.length;
+  if (n < 128 || dominantHz <= 0) return 0.5;
+
+  /* Sub-window: ~1/3 of total, minimum 64, maximum 512 samples */
+  const winLen = Math.min(Math.max(64, Math.floor(n / 3)), 512);
+  const hop = Math.floor(winLen / 2);
+  const fftSize = 1 << Math.ceil(Math.log2(winLen));
+  const halfN = fftSize / 2;
+  const numSegments = Math.max(1, Math.floor((n - winLen) / hop) + 1);
+  if (numSegments < 2) return 0.5;
+
+  const f = new FFT(fftSize);
+  const segmentFreqs: number[] = [];
+  const minBin = Math.max(1, Math.ceil(5 * fftSize / sampleRateHz));
+
+  for (let s = 0; s < numSegments; s++) {
+    const start = s * hop;
+    const copyLen = Math.min(winLen, n - start);
+
+    /* Extract and zero-pad to fftSize */
+    const work = new Float64Array(fftSize);
+    for (let i = 0; i < copyLen; i++) {
+      work[i] = signal[start + i];
+    }
+
+    /* Detrend */
+    const detrended = detrend(work);
+
+    /* Hann window on valid samples */
+    for (let i = 0; i < copyLen; i++) {
+      const w = 0.5 * (1 - Math.cos(2 * Math.PI * i / (copyLen - 1 || 1)));
+      detrended[i] *= w;
+    }
+
+    /* FFT */
+    const complex = f.createComplexArray();
+    f.realTransform(complex, detrended);
+    f.completeSpectrum(complex);
+
+    /* Find dominant peak */
+    let peakPower = 0;
+    let peakIdx = -1;
+    for (let k = minBin; k < halfN; k++) {
+      const re = complex[2 * k];
+      const im = complex[2 * k + 1];
+      const p = re * re + im * im;
+      if (p > peakPower) {
+        peakPower = p;
+        peakIdx = k;
+      }
+    }
+
+    if (peakIdx > 0) {
+      segmentFreqs.push((peakIdx * sampleRateHz) / fftSize);
+    }
+  }
+
+  if (segmentFreqs.length < 2) return 0.5;
+
+  /* Fraction of windows agreeing with the global dominant frequency */
+  const bandHz = Math.max(1, 2); // ±2 Hz agreement band
+  const inBand = segmentFreqs.filter(f => Math.abs(f - dominantHz) <= bandHz).length;
+  const agreement = inBand / segmentFreqs.length;
+
+  /* Coefficient of variation of window frequencies */
+  const mean = segmentFreqs.reduce((a, b) => a + b, 0) / segmentFreqs.length;
+  const variance = segmentFreqs.reduce((a, b) => a + (b - mean) ** 2, 0) / segmentFreqs.length;
+  const cv = mean > 0 ? Math.sqrt(variance) / mean : 1;
+
+  /* Combine: high agreement + low dispersion = stable */
+  const dispersionScore = Math.max(0, 1 - Math.min(1, cv * 3));
+  return Math.min(1, agreement * 0.6 + dispersionScore * 0.4);
+}
+
 /**
  * Prominence-based peak detection in the power spectrum.
  *
@@ -908,17 +1036,16 @@ function findSpectrumPeaks(freqs: number[], powers: number[]): PeakInfo[] {
 /* ================================================================== */
 
 /**
- * Confidence scoring from three independent factors:
+ * Confidence scoring from five independent factors:
  *
- *   A) Peak prominence ratio (PNR)
+ *   A) Local peak-to-noise ratio (PNR) from a guarded local annulus
  *      The dominant peak's power relative to the noise floor, where the
- *      noise floor is estimated from all bins EXCEPT a ±15 bin window
- *      around the dominant peak (preventing the peak from inflating the
- *      noise baseline).
+ *      noise floor is estimated from a LOCAL annulus around the peak
+ *      (typically ±10 to ±30 Hz away).  This prevents the massive number
+ *      of clean high-frequency bins from diluting the noise estimate.
  *      pnr = peakPower / noiseFloor (linear)
  *      pnrNorm = log10(1 + pnr) / log10(1 + 100), clamped to [0, 1]
- *      The logarithmic compression provides a dB-like perceptual scale,
- *      saturating at a 100× peak-to-noise ratio.
+ *      Absolute PNR veto at 10 dB (10x) as noise-driven baseline.
  *
  *   B) Nyquist proximity
  *      A quadratic penalty as the dominant frequency approaches Nyquist:
@@ -926,13 +1053,23 @@ function findSpectrumPeaks(freqs: number[], powers: number[]): PeakInfo[] {
  *      At 50% Nyquist → 0.75, at 80% → 0.36, at 100% → 0.
  *
  *   C) Cycle count sufficiency
- *      For reliable spectral estimation, the segment should contain
- *      multiple full cycles of the fundamental frequency:
  *      cycleConfidence = min(1, numCycles / 10)
- *      At least 10 cycles yields full confidence; fewer cycles reduces it.
  *
- * The three factors are combined via a weighted sum:
- *   confidence = 0.5 × A + 0.3 × B + 0.2 × C
+ *   D) Spectral concentration
+ *      Ratio of energy in the main lobe (±~1 Hz) to energy in a local
+ *      band (±~5 Hz).  Real electrical flicker produces sharp spectral
+ *      peaks (high ratio); motion-induced pseudo-flicker produces broader
+ *      peaks (low ratio).  This factor is orthogonal to PNR because it
+ *      depends only on peak shape, not absolute power level.
+ *      concNorm = clamp((concentration - 0.3) / 0.65, 0, 1)
+ *
+ *   E) Welch frequency stability
+ *      Multi-window consistency of the dominant frequency across
+ *      overlapping sub-segments.  Real flicker is stable; camera shake
+ *      or transient disturbances produce frequency drift.
+ *
+ * The five factors are combined via a weighted sum:
+ *   confidence = 0.35 × A + 0.20 × B + 0.15 × C + 0.15 × D + 0.15 × E
  */
 function computeConfidence(
   dominantHz: number,
@@ -942,18 +1079,29 @@ function computeConfidence(
   powers: number[],
   timestamps: Float64Array,
   sampleRateHz: number,
+  welchStability: number,
 ): number {
   if (dominantHz <= 0 || peakPowerVal <= 0) return 0;
 
-  /* ---- Factor A: Peak-to-noise ratio ---- */
-  /* Exclude ±15 bins around the dominant peak.  This prevents the peak
-     itself from biasing the noise floor estimate.  15 bins at typical
-     FFT resolution (~0.5 Hz/bin) gives a ±7.5 Hz exclusion zone, which
-     is wide enough to cover the main lobe and first few sidelobes. */
-  const excludeRange = 15;
+  const binWidthHz = freqs.length > 1 ? freqs[1] - freqs[0] : 1;
+
+  /* ---- Factor A: Peak-to-noise ratio (local guarded annulus) ---- */
+  /* Estimate noise from a local ring around the peak rather than the
+     full spectrum.  A guard band excludes the main lobe + leakage margin
+     (~3 Hz), then noise is estimated from a ring ~10-30 Hz away.
+     This prevents clean high-frequency bins from artificially lowering
+     the noise floor. */
+  const guardHz = 3;
+  const guardBins = Math.max(3, Math.ceil(guardHz / binWidthHz));
+  const annulusInnerHz = 10;
+  const annulusInner = Math.max(guardBins + 1, Math.ceil(annulusInnerHz / binWidthHz));
+  const annulusOuterHz = 30;
+  const annulusOuter = Math.max(annulusInner + 10, Math.ceil(annulusOuterHz / binWidthHz));
+
   const noiseBins: number[] = [];
   for (let i = 0; i < powers.length; i++) {
-    if (Math.abs(i - peakIdx) > excludeRange) {
+    const dist = Math.abs(i - peakIdx);
+    if (dist >= annulusInner && dist <= annulusOuter) {
       noiseBins.push(powers[i]);
     }
   }
@@ -965,7 +1113,9 @@ function computeConfidence(
   const noiseFloor = sortedNoise[Math.floor(sortedNoise.length / 2)];
   const pnr = noiseFloor > 0 ? peakPowerVal / noiseFloor : 1;
 
-  /* Logarithmic compression: normalize so that a 100× PNR maps to 1.0 */
+  /* Absolute PNR veto: < 10 dB (10x linear) means noise-driven peak */
+  if (pnr < 10) return 0;
+
   const pnrNorm = Math.min(1, Math.log10(1 + pnr) / Math.log10(1 + 100));
 
   /* ---- Factor B: Nyquist proximity ---- */
@@ -982,15 +1132,43 @@ function computeConfidence(
   const numCycles = duration > 0 ? duration * dominantHz : 0;
   const cycleConfidence = Math.min(1, numCycles / 10);
 
-  /* ---- Weighted combination ---- */
-  /* Weights reflect the relative importance of each factor.
-     PNR is the strongest indicator, Nyquist proximity guards against
-     aliasing risk, and cycle count ensures statistical reliability. */
-  const w1 = 0.5;
-  const w2 = 0.3;
-  const w3 = 0.2;
+  /* ---- Factor D: Spectral concentration ---- */
+  /* Energy ratio of the main lobe to the local band.  Sharp flicker
+     peaks concentrate energy in the central bins; broad motion-induced
+     pseudo-flicker spreads energy across many bins. */
+  const concentrationInnerHz = 1;
+  const concentrationOuterHz = 5;
+  const ci = Math.max(1, Math.ceil(concentrationInnerHz / binWidthHz));
+  const co = Math.max(ci + 2, Math.ceil(concentrationOuterHz / binWidthHz));
 
-  return Math.max(0, Math.min(1, w1 * pnrNorm + w2 * nyquistConfidence + w3 * cycleConfidence));
+  let innerPower = 0;
+  let outerPower = 0;
+  for (let i = Math.max(0, peakIdx - ci); i <= Math.min(powers.length - 1, peakIdx + ci); i++) {
+    innerPower += powers[i];
+  }
+  for (let i = Math.max(0, peakIdx - co); i <= Math.min(powers.length - 1, peakIdx + co); i++) {
+    outerPower += powers[i];
+  }
+  const concentration = outerPower > 0 ? innerPower / outerPower : 0;
+  const concNorm = Math.min(1, Math.max(0, (concentration - 0.3) / 0.65));
+
+  /* ---- Factor E: Welch frequency stability ---- */
+  /* Multi-window consistency across overlapping sub-segments. */
+
+  /* ---- Weighted combination ---- */
+  /* PNR is still the strongest single indicator.  Concentration and
+     Welch stability are orthogonal discriminators that PNR alone
+     cannot catch (a broad peak can still have high local SNR). */
+  const w1 = 0.35;
+  const w2 = 0.20;
+  const w3 = 0.15;
+  const w4 = 0.15;
+  const w5 = 0.15;
+
+  return Math.max(0, Math.min(1,
+    w1 * pnrNorm + w2 * nyquistConfidence + w3 * cycleConfidence +
+    w4 * concNorm + w5 * welchStability
+  ));
 }
 
 /* ================================================================== */
