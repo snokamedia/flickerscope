@@ -941,6 +941,26 @@ The VFR detection scans only the first 180 frames. For videos with time‑segmen
 
 fft.js and the mp‑proxy module are bundled into the Web Worker chunk (≈ 16 KB). This is efficient but means both the main thread and the worker include fft.js. At 716 KB total JS (gzip: 215 KB), this is acceptable but worth monitoring if the feature set grows.
 
+### 18.8 Noise-driven false positives (no-flicker gate)
+
+A steady light source produces a near-constant luminance signal with only sensor noise. The FFT of white noise always has a global maximum bin by chance (max-of-N Rayleigh distribution, typically 7–12 dB above the median). Without a specific guard, this can register as a false-positive "flicker" detection.
+
+The current gate uses three criteria checked in order:
+
+1. **Prominence peak support:** The global max bin must be backed by a prominence-qualified peak (`findSpectrumPeaks`). This filters out noise-driven maxima that lack the spectral signature of a real periodic signal.
+2. **Peak-to-noise ratio:** The global max must be at least 10 dB above the median of all non-DC bins outside a ±15-bin exclusion window around the peak.
+3. **Minimum modulation:** The Michelson contrast of the original (non-detrended) luminance signal must be at least 1.0%.
+
+If any criterion fails, the verdict is set to `none` and the result is reported as "No discernible frequency found."
+
+**Future improvements (not yet implemented):**
+
+- **Autocorrelation periodicity check:** Compute the normalized autocorrelation of the detrended signal at the candidate period. A real periodic source produces a clear autocorrelation peak (> 0.3–0.4); white noise decorrelates immediately. This directly tests "does the signal repeat?" — the fundamental question that threshold-based tests only approximate.
+- **Spectral concentration check:** Measure what fraction of total non-DC power lies within a narrow band (±2 bins) around the dominant frequency. Real flicker concentrates energy (> 30%); sensor noise spreads it broadly (< 10–15%). This discriminates between a structured periodic source and a diffuse noise spectrum.
+- **Multi-window consistency vote:** Split the segment into overlapping sub-windows and require the dominant frequency to be stable across them. True flicker persists across time windows; noise peaks wander.
+
+These stages would further reduce false positives without raising static thresholds that could miss real weak flicker.
+
 ---
 
 ## 19. References

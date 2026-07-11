@@ -248,6 +248,14 @@ function computeFlickerMetrics(
      See findSpectrumPeaks for detailed rationale. */
   const prominencePeaks = findSpectrumPeaks(freqs, powers);
 
+  /* ---- Prominence support check ---- */
+  /* The global max bin must be backed by a prominence-qualified peak.
+     Random noise produces a global max by chance (max-of-N Rayleigh), but
+     that bin rarely has the spectral prominence of a real periodic signal.
+     If the global max doesn't align with any prominence peak, reject the
+     detection as noise-driven. */
+  const hasProminenceSupport = prominencePeaks.some(p => Math.abs(p.freq - dominantHz) <= 1.5);
+
   /* Merge: the global max bin is authoritative.  Any prominence-detected
      peak within 2.5 Hz is the same physical peak — replace with the
      louder interpolated ground truth and discard duplicates. */
@@ -304,7 +312,7 @@ function computeFlickerMetrics(
   const pnr = noiseFloor > 0 ? peakPowerValue / noiseFloor : 1;
   const pnrDb = 10 * Math.log10(pnr);
 
-  if (pnrDb < 10 || modulationPercent < 1.0) {
+  if (!hasProminenceSupport || pnrDb < 10 || modulationPercent < 1.0) {
     verdict = 'none';
     riskNotesArr.push(
       'No discernible frequency found — the light source appears to be steady ' +
