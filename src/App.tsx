@@ -47,7 +47,7 @@ export default function App() {
         <h1 className="bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-2xl font-bold text-transparent">
           FlickerScope
         </h1>
-        <p className="mt-0.5 text-xs text-text-dim">
+        <p className="mt-0.5 text-sm text-text-dim">
           Light flicker frequency estimator
         </p>
       </header>
@@ -60,20 +60,20 @@ export default function App() {
         <section className="mb-4 space-y-4">
           <MetadataPanel metadata={video.metadata} />
           {fpsTier === 'reject' && (
-            <div className="rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-xs text-danger">
+            <div className="rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-sm text-danger">
               Frame rate ({fps.toFixed(1)} fps) is too low for flicker
               analysis. Minimum 120 fps required. Use a slow-motion mode (240 fps or higher).
             </div>
           )}
           {fpsTier === 'limited' && (
-            <div className="rounded-lg border border-warning/20 bg-warning/5 px-3 py-2 text-xs text-warning">
+            <div className="rounded-lg border border-warning/20 bg-warning/5 px-3 py-2 text-sm text-warning">
               Frame rate ({fps.toFixed(1)} fps) limits analysis to
               low frequencies (≤ ~60 Hz). 100/120 Hz driver flicker may alias.
               {' '}<strong>240+ fps recommended</strong>.
             </div>
           )}
           {video.metadata.fpsDecoded < 31 && (
-            <div className="rounded-lg border border-amber/20 bg-amber/5 px-3 py-2 text-xs leading-relaxed text-amber">
+            <div className="rounded-lg border border-amber/20 bg-amber/5 px-3 py-2 text-sm leading-relaxed text-amber">
               This video appears to be standard speed (≈30 fps). If you recorded slow-motion
               on an iPhone, the Photos library may have served a processed copy. Try saving
               the video to the <strong>Files</strong> app first, then upload from{' '}
@@ -94,7 +94,7 @@ export default function App() {
       {video.videoUrl && (
         <section className="mb-4 space-y-3 rounded-lg border border-border bg-panel p-3 sm:p-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-text-dim">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-text-dim">
               Preview &amp; Trim
             </h2>
           </div>
@@ -124,7 +124,7 @@ export default function App() {
 
       {analysis.running && (
         <section className="mb-4 space-y-2 rounded-lg border border-border bg-panel p-4">
-          <div className="flex items-center justify-between text-xs text-text-muted">
+          <div className="flex items-center justify-between text-sm text-text-muted">
             <span>Decoding &amp; analyzing</span>
             {analysis.progress && (
               <span className="font-mono tabular-nums">
@@ -146,7 +146,7 @@ export default function App() {
       )}
 
       {analysis.error && (
-        <section className="mb-4 rounded-lg border border-danger/20 bg-danger/5 p-3 text-xs text-danger">
+        <section className="mb-4 rounded-lg border border-danger/20 bg-danger/5 p-3 text-sm text-danger">
           {analysis.error}
         </section>
       )}
@@ -161,7 +161,7 @@ export default function App() {
           >
             <div className="space-y-4">
               <div className="rounded-lg border border-border bg-panel p-3 sm:p-4">
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-dim">
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-text-dim">
                   Brightness over time
                 </h3>
                 <BrightnessChart
@@ -171,7 +171,7 @@ export default function App() {
               </div>
 
               <div className="rounded-lg border border-border bg-panel p-3 sm:p-4">
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-dim">
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-text-dim">
                   Frequency spectrum
                 </h3>
                 <SpectrumChart
@@ -188,7 +188,7 @@ export default function App() {
       )}
 
       {video.error && !video.metadata && (
-        <section className="mb-4 rounded-lg border border-danger/20 bg-danger/5 p-3 text-xs text-danger">
+        <section className="mb-4 rounded-lg border border-danger/20 bg-danger/5 p-3 text-sm text-danger">
           {video.error}
         </section>
       )}
@@ -198,15 +198,15 @@ export default function App() {
         <Accordion.Root className="mx-auto max-w-lg">
           <Accordion.Item value="about" className="border-b border-border/0">
             <Accordion.Header>
-              <Accordion.Trigger className="group flex w-full items-center justify-center gap-1 py-1 text-xs text-text-dim transition hover:text-text-muted">
+              <Accordion.Trigger className="group flex w-full items-center justify-center gap-1 py-1 text-sm text-text-dim transition hover:text-text-muted">
                 <span className="inline-block transition-transform group-data-[panel-open]:rotate-90">▶</span>
                 About these measurements
               </Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel className="pt-2 text-[10px] leading-relaxed text-text-dim">
+            <Accordion.Panel className="pt-2 text-sm leading-relaxed text-text-dim">
               <div className="space-y-3">
                 <section>
-                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Method</h4>
+                  <h4 className="mb-1 text-sm font-semibold uppercase tracking-wider text-text-muted">Method</h4>
                   <p>
                     FlickerScope analyzes video frames to estimate temporal luminance modulation.
                     Values are derived from camera pixel data (sRGB → linear-light Rec. 709 luminance),
@@ -215,7 +215,7 @@ export default function App() {
                   </p>
                 </section>
                 <section>
-                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Standards</h4>
+                  <h4 className="mb-1 text-sm font-semibold uppercase tracking-wider text-text-muted">Standards</h4>
                   <p>
                     IEEE 1789-2015 risk references (NOEL, Low-risk) are provided as screening guidance.
                     Browser-based video analysis is <strong>not a substitute</strong> for calibrated
@@ -225,7 +225,7 @@ export default function App() {
                   </p>
                 </section>
                 <section>
-                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Limitations</h4>
+                  <h4 className="mb-1 text-sm font-semibold uppercase tracking-wider text-text-muted">Limitations</h4>
                   <p>
                     Camera ISP processing (tone mapping, denoising, HDR, auto-exposure),
                     rolling shutter, gamma correction, and compression artifacts may affect
@@ -233,7 +233,7 @@ export default function App() {
                   </p>
                 </section>
                 <section>
-                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Recommended capture</h4>
+                  <h4 className="mb-1 text-sm font-semibold uppercase tracking-wider text-text-muted">Recommended capture</h4>
                   <p>
                     240+ fps slow-motion, locked exposure, stationary camera,
                     light source filling most of the frame. Avoid motion blur and mixed lighting.

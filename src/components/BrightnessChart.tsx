@@ -98,7 +98,7 @@ export function BrightnessChart({ data, className }: Props) {
       {zoomed && (
         <button
           onClick={handleReset}
-          className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded bg-panel/90 px-2 py-1 text-xs text-text-dim transition hover:text-text-main"
+          className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded bg-panel/90 px-2 py-1 text-sm text-text-dim transition hover:text-text-main"
         >
           <RotateCcw className="size-3" />
           Reset zoom

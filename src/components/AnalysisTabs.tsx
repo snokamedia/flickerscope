@@ -15,7 +15,7 @@ export function AnalysisTabs({ therapyReport, children }: Props) {
       <Tabs.List className="mb-4 flex gap-0 border-b border-border">
         <Tabs.Tab
           value="analysis"
-          className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium uppercase tracking-wider text-text-dim transition-colors hover:text-text-main aria-selected:border-b-2 aria-selected:border-accent aria-selected:text-accent"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium uppercase tracking-wider text-text-dim transition-colors hover:text-text-main aria-selected:border-b-2 aria-selected:border-accent aria-selected:text-accent"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
@@ -25,7 +25,7 @@ export function AnalysisTabs({ therapyReport, children }: Props) {
         {showTherapy && (
           <Tabs.Tab
             value="therapy"
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium uppercase tracking-wider text-text-dim transition-colors hover:text-text-main aria-selected:border-b-2 aria-selected:border-accent aria-selected:text-accent"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium uppercase tracking-wider text-text-dim transition-colors hover:text-text-main aria-selected:border-b-2 aria-selected:border-accent aria-selected:text-accent"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z" />

@@ -74,7 +74,7 @@ export function ResultsPanel({ results }: Props) {
           {results.riskNotes.length > 0 && (
             <div className="mt-2 space-y-1">
               {results.riskNotes.map((n, i) => (
-                <p key={i} className="flex items-start gap-1.5 text-xs text-text-muted">
+                <p key={i} className="flex items-start gap-1.5 text-sm text-text-muted">
                   <span className="mt-0.5 shrink-0">
                     {results.verdict === 'high' || results.verdict === 'elevated'
                       ? <AlertOctagon className="size-3 text-danger" />
@@ -92,13 +92,13 @@ export function ResultsPanel({ results }: Props) {
       {/* ---- IEEE 1789 position indicator ---- */}
       {results.verdict !== 'none' && (
       <StatPanel icon={<Info className="size-3.5" />} title="IEEE 1789-2015 risk assessment">
-        <div className="space-y-1 text-xs text-text-muted">
+        <div className="space-y-1 text-sm text-text-muted">
           <p>
             Modulation {results.modulationPercent.toFixed(1)}% at{' '}
             {results.frequencyHz.toFixed(1)} Hz →
             {' '}<strong className="text-text-main">{vc.label}</strong>
           </p>
-          <ul className="list-inside list-disc space-y-0.5 text-xs">
+          <ul className="list-inside list-disc space-y-0.5 text-sm">
             <li>
               Low frequency (&lt;90 Hz): NOEL = 0.01 × f, Low-risk = 0.08 × f
             </li>
@@ -146,7 +146,7 @@ export function ResultsPanel({ results }: Props) {
           {results.spectralNotes.length > 0 && (
             <div className="mt-2 space-y-0.5 border-t border-border pt-2">
               {results.spectralNotes.map((n, i) => (
-                <p key={i} className="flex items-start gap-1 text-xs text-text-dim">
+                <p key={i} className="flex items-start gap-1 text-sm text-text-dim">
                   <Activity className="mt-0.5 size-3 shrink-0" />
                   {n}
                 </p>
@@ -214,7 +214,7 @@ export function ResultsPanel({ results }: Props) {
       {results.notes.length > 0 && (
         <div className="space-y-1 rounded-lg border border-border bg-panel p-3">
           {results.notes.map((n, i) => (
-            <p key={i} className="flex items-start gap-1.5 text-xs text-text-muted">
+            <p key={i} className="flex items-start gap-1.5 text-sm text-text-muted">
               <AlertTriangle className="mt-0.5 size-3 shrink-0 text-warning" />
               {n}
             </p>
@@ -266,7 +266,7 @@ export function ResultsPanel({ results }: Props) {
 function StatPanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-border bg-panel p-3">
-      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-text-dim">
+      <h4 className="mb-2 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-text-dim">
         {icon}
         {title}
       </h4>
@@ -297,14 +297,14 @@ function MpProxySection({ mp }: { mp: MpProxyResult }) {
               {mp.value.toFixed(2)}
             </span>
             <span className="text-xs text-text-dim">MP_proxy</span>
-            <span className="ml-1 rounded-full bg-text-dim/10 px-2 py-0.5 text-[10px] text-text-muted">
+            <span className="ml-1 rounded-full bg-text-dim/10 px-2 py-0.5 text-xs text-text-muted">
               {mpLabel}
             </span>
           </div>
           {mp.notes.length > 0 && (
             <div className="mt-1.5 space-y-0.5">
               {mp.notes.map((n, i) => (
-                <p key={i} className="flex items-start gap-1 text-[10px] text-text-dim">
+                <p key={i} className="flex items-start gap-1 text-xs text-text-dim">
                   <AlertTriangle className="mt-0.5 size-2.5 shrink-0 text-warning" />
                   {n}
                 </p>
@@ -314,7 +314,7 @@ function MpProxySection({ mp }: { mp: MpProxyResult }) {
         </div>
       </div>
 
-      <div className="text-xs leading-relaxed text-text-muted">
+      <div className="text-sm leading-relaxed text-text-muted">
         <p className="mb-1">
           An MP-inspired screening score for direct flicker visibility,
           computed from luminance sampled at {mp.sampleRateHz.toFixed(0)} Hz
@@ -354,7 +354,7 @@ function StatWithPopover({ label, value, warn, explanation }: {
           ${warn ? 'border-warning/30 bg-warning/[0.04]' : 'border-border/50 bg-surface/50'}
         `}
       >
-        <div className="text-[10px] uppercase tracking-wider text-text-dim">{label}</div>
+        <div className="text-xs uppercase tracking-wider text-text-dim">{label}</div>
         <div className={`font-mono text-sm font-semibold tabular-nums ${warn ? 'text-warning' : 'text-text-main'}`}>
           {value}
         </div>

@@ -84,9 +84,9 @@ function Stat({ label, value, help, valueClass, icon, badge, badgeClass }: {
       </div>
       <div className={`flex items-center gap-2 font-mono text-sm font-semibold tabular-nums ${valueClass ?? 'text-text-main'}`}>
         {value}
-        {badge && <span className={`rounded border px-1 py-px text-[9px] font-medium uppercase leading-none tracking-wider ${badgeClass}`}>{badge}</span>}
+        {badge && <span className={`rounded border px-1 py-px text-[11px] font-medium uppercase leading-none tracking-wider ${badgeClass}`}>{badge}</span>}
       </div>
-      {help && <div className="mt-0.5 text-[10px] text-text-dim">{help}</div>}
+      {help && <div className="mt-0.5 text-xs text-text-dim">{help}</div>}
     </div>
   );
 }

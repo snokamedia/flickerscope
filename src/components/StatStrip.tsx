@@ -79,7 +79,7 @@ export function StatStrip({ metadata, results }: Props) {
               ${s.warn ? 'border-warning/30 bg-warning/[0.06]' : ''}
             `}
           >
-            <span className="text-[10px] uppercase tracking-wider text-text-dim">{s.label}</span>
+            <span className="text-xs uppercase tracking-wider text-text-dim">{s.label}</span>
             <span className={`font-mono text-base font-bold tabular-nums leading-tight ${s.highlight ? 'text-accent' : s.warn ? 'text-warning' : 'text-text-main'}`}>
               {s.value}
             </span>

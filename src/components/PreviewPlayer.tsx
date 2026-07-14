@@ -57,7 +57,7 @@ export function PreviewPlayer({ videoUrl, onTimeUpdate }: Props) {
         >
           {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
         </button>
-        <span className="font-mono text-xs tabular-nums text-text-dim">{time}</span>
+        <span className="font-mono text-sm tabular-nums text-text-dim">{time}</span>
       </div>
     </div>
   );

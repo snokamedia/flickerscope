@@ -35,14 +35,14 @@ export function TherapyPanel({ report }: Props) {
           <div className={`text-lg font-bold ${colorClass}`}>
             {therapyVerdictLabel(verdict)}
           </div>
-          <div className="text-xs text-text-muted">
+          <div className="text-sm text-text-muted">
             40 Hz gamma therapy protocol validation
           </div>
         </div>
       </div>
 
       {/* Summary */}
-      <div className="rounded-lg border border-border bg-panel-2 p-3 text-xs leading-relaxed text-text-main">
+      <div className="rounded-lg border border-border bg-panel-2 p-3 text-sm leading-relaxed text-text-main">
         {summary}
       </div>
 
@@ -56,14 +56,14 @@ export function TherapyPanel({ report }: Props) {
       {/* Red flags */}
       {redFlags.length > 0 && (
         <div>
-          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-danger">
+          <h4 className="mb-2 text-sm font-semibold uppercase tracking-wider text-danger">
             {redFlags.length === 1 ? '1 red flag' : `${redFlags.length} red flags`}
           </h4>
           <div className="space-y-1.5">
             {redFlags.map((flag, i) => (
               <div
                 key={i}
-                className="flex items-start gap-2 rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-xs leading-relaxed text-danger"
+                className="flex items-start gap-2 rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-sm leading-relaxed text-danger"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z" />
@@ -77,7 +77,7 @@ export function TherapyPanel({ report }: Props) {
 
       {/* No red flags */}
       {redFlags.length === 0 && verdict !== 'indeterminate' && (
-        <div className="flex items-center gap-2 rounded-lg border border-safe/20 bg-safe/5 px-3 py-2 text-xs text-safe">
+        <div className="flex items-center gap-2 rounded-lg border border-safe/20 bg-safe/5 px-3 py-2 text-sm text-safe">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
@@ -137,10 +137,10 @@ function CriterionCard({ criterion }: { criterion: TherapyCriterion }) {
       <div className="mb-0.5 font-mono text-sm font-semibold tabular-nums text-text-main">
         {criterion.value}
       </div>
-      <div className="text-[10px] text-text-dim">
+      <div className="text-xs text-text-dim">
         Target: {criterion.target}
       </div>
-      <div className="mt-1.5 text-[10px] leading-relaxed text-text-muted">
+      <div className="mt-1.5 text-xs leading-relaxed text-text-muted">
         {criterion.explanation}
       </div>
     </div>
