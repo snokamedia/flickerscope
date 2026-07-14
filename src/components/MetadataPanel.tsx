@@ -19,31 +19,35 @@ export function MetadataPanel({ metadata }: Props) {
   const tierCfg = TIER_CONFIG[tier];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-      <Stat label="Resolution" value={`${metadata.width} × ${metadata.height}`} />
-      <Stat label="Duration" value={`${metadata.duration.toFixed(1)}s`} />
-      <Stat label="Frames" value={`${metadata.frameCount}`} />
-      <Stat
-        label="Frame rate"
-        value={`${fps.toFixed(1)} fps`}
-        badge={tierCfg.label}
-        badgeClass={tierCfg.class}
-        help={
-          metadata.isVfrLikely
-            ? 'variable frame rate'
-            : Math.abs(fps - metadata.fpsAverage) > 5
-              ? `container reports ${metadata.fpsAverage.toFixed(0)} fps`
-              : metadata.fpsNominal
-                ? `nominal ${metadata.fpsNominal} fps`
-                : undefined
-        }
-      />
-      <Stat
-        label="Codec"
-        value={metadata.codec.toUpperCase()}
-        valueClass={codecSupported ? 'text-safe' : 'text-warning'}
-        icon={codecSupported ? <CheckCircle2 className="size-3.5 text-safe" /> : <AlertCircle className="size-3.5 text-warning" />}
-      />
+    <div className="grid grid-cols-2 gap-3">
+      <div className="space-y-3">
+        <Stat
+          label="Frame rate"
+          value={`${fps.toFixed(1)} fps`}
+          badge={tierCfg.label}
+          badgeClass={tierCfg.class}
+          help={
+            metadata.isVfrLikely
+              ? 'variable frame rate'
+              : Math.abs(fps - metadata.fpsAverage) > 5
+                ? `container reports ${metadata.fpsAverage.toFixed(0)} fps`
+                : metadata.fpsNominal
+                  ? `nominal ${metadata.fpsNominal} fps`
+                  : undefined
+          }
+        />
+        <Stat label="Duration" value={`${metadata.duration.toFixed(1)}s`} />
+        <Stat label="Frames" value={`${metadata.frameCount}`} />
+      </div>
+      <div className="space-y-3">
+        <Stat label="Resolution" value={`${metadata.width} × ${metadata.height}`} />
+        <Stat
+          label="Codec"
+          value={metadata.codec.toUpperCase()}
+          valueClass={codecSupported ? 'text-safe' : 'text-warning'}
+          icon={codecSupported ? <CheckCircle2 className="size-3.5 text-safe" /> : <AlertCircle className="size-3.5 text-warning" />}
+        />
+      </div>
     </div>
   );
 }
