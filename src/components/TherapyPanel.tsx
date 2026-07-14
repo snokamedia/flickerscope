@@ -56,7 +56,7 @@ export function TherapyPanel({ report }: Props) {
       {/* Red flags */}
       {redFlags.length > 0 && (
         <div>
-          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-danger">
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-danger">
             {redFlags.length === 1 ? '1 red flag' : `${redFlags.length} red flags`}
           </h4>
           <div className="space-y-1.5">
@@ -127,7 +127,7 @@ function CriterionCard({ criterion }: { criterion: TherapyCriterion }) {
   return (
     <div className="rounded-lg border border-border bg-panel p-3">
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-text-dim">
+        <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">
           {criterion.label}
         </span>
         <span className={`inline-flex items-center gap-1 ${statusClass}`}>

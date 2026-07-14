@@ -98,7 +98,7 @@ export function ResultsPanel({ results }: Props) {
             {results.frequencyHz.toFixed(1)} Hz →
             {' '}<strong className="text-text-main">{vc.label}</strong>
           </p>
-          <ul className="list-inside list-disc space-y-0.5 text-[11px]">
+          <ul className="list-inside list-disc space-y-0.5 text-xs">
             <li>
               Low frequency (&lt;90 Hz): NOEL = 0.01 × f, Low-risk = 0.08 × f
             </li>
@@ -146,7 +146,7 @@ export function ResultsPanel({ results }: Props) {
           {results.spectralNotes.length > 0 && (
             <div className="mt-2 space-y-0.5 border-t border-border pt-2">
               {results.spectralNotes.map((n, i) => (
-                <p key={i} className="flex items-start gap-1 text-[11px] text-text-dim">
+                <p key={i} className="flex items-start gap-1 text-xs text-text-dim">
                   <Activity className="mt-0.5 size-3 shrink-0" />
                   {n}
                 </p>
@@ -266,7 +266,7 @@ export function ResultsPanel({ results }: Props) {
 function StatPanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-border bg-panel p-3">
-      <h4 className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-text-dim">
+      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-text-dim">
         {icon}
         {title}
       </h4>
@@ -314,7 +314,7 @@ function MpProxySection({ mp }: { mp: MpProxyResult }) {
         </div>
       </div>
 
-      <div className="text-[11px] leading-relaxed text-text-muted">
+      <div className="text-xs leading-relaxed text-text-muted">
         <p className="mb-1">
           An MP-inspired screening score for direct flicker visibility,
           computed from luminance sampled at {mp.sampleRateHz.toFixed(0)} Hz

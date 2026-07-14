@@ -222,7 +222,7 @@ export function SpectrumChart({ freqs, powers, peakHz, confidence, className }: 
           {zoomed && (
             <button
               onClick={handleReset}
-              className="flex items-center gap-1 rounded bg-panel/90 px-2 py-1 text-[11px] text-text-dim transition hover:text-text-main"
+              className="flex items-center gap-1 rounded bg-panel/90 px-2 py-1 text-xs text-text-dim transition hover:text-text-main"
             >
               <RotateCcw className="size-3" />
               Reset zoom
@@ -231,7 +231,7 @@ export function SpectrumChart({ freqs, powers, peakHz, confidence, className }: 
         </div>
       </div>
       {lowConfidence && (
-        <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 rounded bg-warning/15 px-2 py-1 text-[11px] text-warning">
+        <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 rounded bg-warning/15 px-2 py-1 text-xs text-warning">
           <AlertTriangle className="size-3" />
           Low confidence
         </div>

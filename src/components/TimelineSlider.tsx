@@ -127,7 +127,7 @@ export function TimelineSlider({ duration, onSegmentChange, onSeek, disabled }: 
           <div className="mx-auto h-full w-0.5 bg-danger" />
         </div>
       </div>
-      <div className="flex items-center justify-between font-mono text-[11px] tabular-nums text-text-dim">
+      <div className="flex items-center justify-between font-mono text-xs tabular-nums text-text-dim">
         <span>{start.toFixed(4)}</span>
         <span className="flex items-center gap-1 text-text-muted">
           <Scissors className="size-3" />

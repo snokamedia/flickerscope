@@ -7,9 +7,9 @@ type Props = {
 };
 
 const TIER_CONFIG = {
-  reject: { label: 'too low', class: 'text-danger border-danger/30' },
-  limited: { label: 'limited', class: 'text-warning border-warning/30' },
-  adequate: { label: 'adequate', class: 'text-safe border-safe/30' },
+  reject: { label: 'too low', class: 'text-danger border-danger/30', icon: AlertCircle, iconClass: 'text-danger' },
+  limited: { label: 'limited', class: 'text-warning border-warning/30', icon: AlertCircle, iconClass: 'text-warning' },
+  adequate: { label: 'adequate', class: 'text-safe border-safe/30', icon: CheckCircle2, iconClass: 'text-safe' },
 } as const;
 
 export function MetadataPanel({ metadata }: Props) {
@@ -17,6 +17,9 @@ export function MetadataPanel({ metadata }: Props) {
   const fps = metadata.fpsDecoded;
   const tier = getFpsTier(fps);
   const tierCfg = TIER_CONFIG[tier];
+  const TierIcon = tierCfg.icon;
+  const durationOk = metadata.duration >= 5;
+  const framesOk = metadata.frameCount >= 1200;
 
   return (
     <div className="grid grid-cols-2 gap-3">
@@ -24,6 +27,8 @@ export function MetadataPanel({ metadata }: Props) {
         <Stat
           label="Frame rate"
           value={`${fps.toFixed(1)} fps`}
+          icon={<TierIcon className={`size-3.5 ${tierCfg.iconClass}`} />}
+          valueClass={tier === 'adequate' ? 'text-safe' : tier === 'reject' ? 'text-danger' : 'text-warning'}
           badge={tierCfg.label}
           badgeClass={tierCfg.class}
           help={
@@ -36,8 +41,18 @@ export function MetadataPanel({ metadata }: Props) {
                   : undefined
           }
         />
-        <Stat label="Duration" value={`${metadata.duration.toFixed(1)}s`} />
-        <Stat label="Frames" value={`${metadata.frameCount}`} />
+        <Stat
+          label="Duration"
+          value={`${metadata.duration.toFixed(1)}s`}
+          icon={durationOk ? <CheckCircle2 className="size-3.5 text-safe" /> : <AlertCircle className="size-3.5 text-warning" />}
+          valueClass={durationOk ? 'text-safe' : 'text-warning'}
+        />
+        <Stat
+          label="Frames"
+          value={`${metadata.frameCount}`}
+          icon={framesOk ? <CheckCircle2 className="size-3.5 text-safe" /> : <AlertCircle className="size-3.5 text-warning" />}
+          valueClass={framesOk ? 'text-safe' : 'text-warning'}
+        />
       </div>
       <div className="space-y-3">
         <Stat label="Resolution" value={`${metadata.width} × ${metadata.height}`} />
@@ -63,7 +78,7 @@ function Stat({ label, value, help, valueClass, icon, badge, badgeClass }: {
 }) {
   return (
     <div className="rounded-lg border border-border bg-panel p-3">
-      <div className="mb-0.5 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-text-dim">
+      <div className="mb-0.5 flex items-center gap-1.5 text-xs uppercase tracking-wider text-text-dim">
         {icon}
         {label}
       </div>

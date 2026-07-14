@@ -42,7 +42,7 @@ export default function App() {
   const fpsTier = fps > 0 ? getFpsTier(fps) : null;
 
   return (
-    <div className="mx-auto max-w-3xl px-3 py-6 sm:px-4 sm:py-8">
+    <div className="mx-auto w-full max-w-6xl px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
       <header className="mb-6 text-center">
         <h1 className="bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-2xl font-bold text-transparent">
           FlickerScope
@@ -94,7 +94,7 @@ export default function App() {
       {video.videoUrl && (
         <section className="mb-4 space-y-3 rounded-lg border border-border bg-panel p-3 sm:p-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-dim">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-text-dim">
               Preview &amp; Trim
             </h2>
           </div>
@@ -161,7 +161,7 @@ export default function App() {
           >
             <div className="space-y-4">
               <div className="rounded-lg border border-border bg-panel p-3 sm:p-4">
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-dim">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-dim">
                   Brightness over time
                 </h3>
                 <BrightnessChart
@@ -171,7 +171,7 @@ export default function App() {
               </div>
 
               <div className="rounded-lg border border-border bg-panel p-3 sm:p-4">
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-dim">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-dim">
                   Frequency spectrum
                 </h3>
                 <SpectrumChart
@@ -198,7 +198,7 @@ export default function App() {
         <Accordion.Root className="mx-auto max-w-lg">
           <Accordion.Item value="about" className="border-b border-border/0">
             <Accordion.Header>
-              <Accordion.Trigger className="group flex w-full items-center justify-center gap-1 py-1 text-[11px] text-text-dim transition hover:text-text-muted">
+              <Accordion.Trigger className="group flex w-full items-center justify-center gap-1 py-1 text-xs text-text-dim transition hover:text-text-muted">
                 <span className="inline-block transition-transform group-data-[panel-open]:rotate-90">▶</span>
                 About these measurements
               </Accordion.Trigger>
@@ -206,7 +206,7 @@ export default function App() {
             <Accordion.Panel className="pt-2 text-[10px] leading-relaxed text-text-dim">
               <div className="space-y-3">
                 <section>
-                  <h4 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-text-muted">Method</h4>
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Method</h4>
                   <p>
                     FlickerScope analyzes video frames to estimate temporal luminance modulation.
                     Values are derived from camera pixel data (sRGB → linear-light Rec. 709 luminance),
@@ -215,7 +215,7 @@ export default function App() {
                   </p>
                 </section>
                 <section>
-                  <h4 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-text-muted">Standards</h4>
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Standards</h4>
                   <p>
                     IEEE 1789-2015 risk references (NOEL, Low-risk) are provided as screening guidance.
                     Browser-based video analysis is <strong>not a substitute</strong> for calibrated
@@ -225,7 +225,7 @@ export default function App() {
                   </p>
                 </section>
                 <section>
-                  <h4 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-text-muted">Limitations</h4>
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Limitations</h4>
                   <p>
                     Camera ISP processing (tone mapping, denoising, HDR, auto-exposure),
                     rolling shutter, gamma correction, and compression artifacts may affect
@@ -233,7 +233,7 @@ export default function App() {
                   </p>
                 </section>
                 <section>
-                  <h4 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-text-muted">Recommended capture</h4>
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Recommended capture</h4>
                   <p>
                     240+ fps slow-motion, locked exposure, stationary camera,
                     light source filling most of the frame. Avoid motion blur and mixed lighting.
