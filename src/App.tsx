@@ -72,6 +72,22 @@ export default function App() {
               {' '}<strong>240+ fps recommended</strong>.
             </div>
           )}
+          {video.metadata.fpsDecoded < 31 && (
+            <div className="rounded-lg border border-amber/20 bg-amber/5 px-3 py-2 text-xs leading-relaxed text-amber">
+              This video appears to be standard speed (≈30 fps). If you recorded slow-motion
+              on an iPhone, the Photos library may have served a processed copy. Try saving
+              the video to the <strong>Files</strong> app first, then upload from{' '}
+              <strong>Files</strong> instead of Photos.{' '}
+              <a
+                href="https://github.com/snokamedia/flickerscope/wiki/Capturing-Video-for-FlickerScope"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-cyan-300"
+              >
+                Capture guide
+              </a>.
+            </div>
+          )}
         </section>
       )}
 
