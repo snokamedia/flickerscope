@@ -336,20 +336,20 @@ export function computeMpFromSignal(
   // 7. Notes
   const notes: string[] = [];
   if (signal.duration < 1.5) {
-    notes.push(`Short segment (${signal.duration.toFixed(2)} s) — frequency resolution ~${(1 / signal.duration).toFixed(1)} Hz`);
+    notes.push(`Short segment (${signal.duration.toFixed(2)} s). Frequency resolution ~${(1 / signal.duration).toFixed(1)} Hz`);
   }
   if (fs < 120) {
-    notes.push(`Low effective sample rate (${fs.toFixed(0)} Hz) — MP band restricted`);
+    notes.push(`Low effective sample rate (${fs.toFixed(0)} Hz). MP band restricted`);
   } else if (fMax > nyquist * 0.8) {
-    notes.push('Analysis band approaches Nyquist — possible aliasing at high frequencies');
+    notes.push('Analysis band approaches Nyquist. Possible aliasing at high frequencies');
   }
   if (bins.length < 10) {
-    notes.push('Very few usable frequency bins — result may be unreliable');
+    notes.push('Very few usable frequency bins. Result may be unreliable');
   }
   if (mpValue < 0.3) {
     notes.push('Flicker below typical detection threshold (MP_proxy < 0.3)');
   } else if (mpValue >= 3) {
-    notes.push('Strong flicker — likely obvious to most observers');
+    notes.push('Strong flicker, likely obvious to most observers');
   }
 
   return {
@@ -402,8 +402,8 @@ export function computeMpProxy(
 
   if (result.sampleRateHz > 0 && fMax > nyquist) {
     result.notes.push(
-      `Requested upper band ${fMax} Hz exceeds Nyquist (${nyquist.toFixed(1)} Hz) — ` +
-      `truncated to ${result.freqRangeMax.toFixed(1)} Hz`,
+      `Requested upper band ${fMax} Hz exceeds Nyquist (${nyquist.toFixed(1)} Hz). `
+      + `Truncated to ${result.freqRangeMax.toFixed(1)} Hz.`,
     );
   }
 

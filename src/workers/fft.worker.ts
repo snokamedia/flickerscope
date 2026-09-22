@@ -321,8 +321,8 @@ function computeFlickerMetrics(
   if (!hasProminenceSupport || pnrDb < 10 || modulationPercent < 1.0) {
     verdict = 'none';
     riskNotesArr.push(
-      'No discernible frequency found — the light source appears to be steady ' +
-      '(very low modulation or no significant peak above the noise floor)',
+      'No discernible frequency found. The light source appears to be steady '
+      + '(very low modulation or no significant peak above the noise floor).',
     );
   }
 
@@ -336,14 +336,14 @@ function computeFlickerMetrics(
         const n = Math.round(p.freq / dominantHz);
         const ord = ['2nd','3rd','4th','5th','6th','7th','8th','9th'][n - 2] || `${n}th`;
         spectralNotes.push(
-          `${ord} harmonic at ${p.freq.toFixed(1)} Hz (${relPct}% of fundamental) — ` +
-          'indicates non-sinusoidal waveform',
+          `${ord} harmonic at ${p.freq.toFixed(1)} Hz (${relPct}% of fundamental). `
+          + 'Indicates non-sinusoidal waveform.',
         );
       } else if (label === 'subharmonic') {
         const n = Math.round(dominantHz / p.freq);
         spectralNotes.push(
-          `Subharmonic at ${p.freq.toFixed(1)} Hz (${relPct}% of fundamental) — ` +
-          `possible low-frequency fluctuation or half-wave asymmetry`,
+          `Subharmonic at ${p.freq.toFixed(1)} Hz (${relPct}% of fundamental). `
+          + `Possible low-frequency fluctuation or half-wave asymmetry.`,
         );
       } else {
         spectralNotes.push(
@@ -356,19 +356,19 @@ function computeFlickerMetrics(
   const notes: string[] = [];
   if (effectiveSampleRate < 120) {
     notes.push(
-      `Low effective sample rate (${effectiveSampleRate.toFixed(1)} Hz) — ` +
-      'Nyquist limit restricts reliable detection to < ' +
-      `${(effectiveSampleRate / 2).toFixed(0)} Hz`,
+      `Low effective sample rate (${effectiveSampleRate.toFixed(1)} Hz). `
+      + 'Nyquist limit restricts reliable detection to < '
+      + `${(effectiveSampleRate / 2).toFixed(0)} Hz`,
     );
   }
   if (dominantHz > effectiveSampleRate * 0.4) {
     notes.push(
-      `Peak at ${dominantHz.toFixed(1)} Hz approaches Nyquist ` +
-      `(${(effectiveSampleRate / 2).toFixed(1)} Hz) — possible aliasing`,
+      `Peak at ${dominantHz.toFixed(1)} Hz approaches Nyquist `
+      + `(${(effectiveSampleRate / 2).toFixed(1)} Hz). Possible aliasing.`,
     );
   }
   if (timing && timing.rmsJitterMs > 2) {
-    notes.push(`Timing jitter: ${timing.rmsJitterMs.toFixed(1)} ms RMS — waveform cadence is irregular`);
+    notes.push(`Timing jitter: ${timing.rmsJitterMs.toFixed(1)} ms RMS. Waveform cadence is irregular.`);
   }
 
   const spectrum = freqs.map((freq, i) => ({ freq, power: powers[i] }));
@@ -400,8 +400,8 @@ function computeFlickerMetrics(
     if (!hasHarmonics) {
       verdict = 'uncertain';
       riskNotesArr.push(
-        'Low-frequency weak modulation with very low perceptual score — ' +
-        'may be camera-induced artifact rather than electrical flicker',
+        'Low-frequency weak modulation with very low perceptual score. '
+        + 'May be camera-induced artifact rather than electrical flicker.',
       );
     }
   }
@@ -1214,7 +1214,7 @@ function computeVerdictWithNotes(
   const riskNotes: string[] = [];
 
   if (confidence < 0.3) {
-    return { verdict: 'uncertain', riskNotes: ['Low confidence — insufficient signal quality for reliable verdict'] };
+    return { verdict: 'uncertain', riskNotes: ['Low confidence: insufficient signal quality for reliable verdict'] };
   }
 
   const f = Math.max(1, freqHz);
@@ -1311,14 +1311,14 @@ function computeVerdictWithNotes(
 
   /* Additional nuance from confidence */
   if (confidence < 0.5 && verdict !== 'noel') {
-    riskNotes.push('Moderate confidence — consider corroborating measurements');
+    riskNotes.push('Moderate confidence. Consider corroborating measurements.');
   }
 
   /* Flag if multiple strong peaks suggest ambiguous fundamental */
   if (topPeaks.length > 1 && topPeaks[0].power > 0) {
     const ratio = topPeaks[1].power / topPeaks[0].power;
     if (ratio > 0.7) {
-      riskNotes.push('Multiple comparable peaks — dominant frequency assignment may be ambiguous');
+      riskNotes.push('Multiple comparable peaks. Dominant frequency assignment may be ambiguous.');
     }
   }
 

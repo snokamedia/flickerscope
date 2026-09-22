@@ -5,3 +5,11 @@ dist/
 AGENTS.md
 SPEC.md
 research/
+
+# Build / TypeScript incremental artifacts
+*.tsbuildinfo
+vite.config.d.ts
+
+# Editor / local backups
+*.old
+*.log

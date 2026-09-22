@@ -1,8 +1,8 @@
-Many modern phones — especially models from about 2020 onward — can record **240 fps slow-motion video** out of the box, even if the default camera app does not make that obvious. On Android, the easiest way to get reliable clips for FlickerScope is **Open Camera**, a free, open-source app available on **F-Droid** and the **Google Play Store**. It gives much better control over frame rate, resolution, codec, focus, and exposure than most stock camera apps.
+Many modern phones (especially models from about 2020 onward) can record **240 fps slow-motion video** out of the box, even if the default camera app does not make that obvious. On Android, the easiest way to get reliable clips for FlickerScope is **Open Camera**, a free, open-source app available on **F-Droid** and the **Google Play Store**. It gives much better control over frame rate, resolution, codec, focus, and exposure than most stock camera apps.
 
 ## No computer required
 
-FlickerScope runs entirely in your phone browser at **[https://snokamedia.github.io/flickerscope/](https://snokamedia.github.io/flickerscope/)**. Record a clip with your camera app, then open FlickerScope in your phone browser and load the video directly from your gallery — no uploads, no computer, no install needed.
+FlickerScope runs entirely in your phone browser at **[https://snokamedia.github.io/flickerscope/](https://snokamedia.github.io/flickerscope/)**. Record a clip with your camera app, then open FlickerScope in your phone browser and load the video directly from your gallery. No uploads, no computer, and no install needed.
 
 ## Recommended app: Open Camera
 
@@ -16,13 +16,13 @@ Open Camera is the best starting point for Android because it exposes the settin
 4. Turn **image stabilization off**.
 5. Set focus to **infinity** or use **manual focus**.
 6. **Lock exposure** so brightness does not drift during recording.
-7. Record a **8–15 second** clip. The extra length lets you trim off the first and last few seconds where pressing the button caused camera shake — use FlickerScope's timeline controls to select only the clean middle segment. A **tripod or phone stand** helps minimize shake.
+7. Record a **8–15 second** clip. The extra length lets you trim off the first and last few seconds where pressing the button caused camera shake. Use FlickerScope's timeline controls to select only the clean middle segment. A **tripod or phone stand** helps minimize shake.
 8. Open **[FlickerScope](https://snokamedia.github.io/flickerscope/)** in your phone browser and load the video from your gallery.
 
 ### iPhone workflow
 
 1. Use the stock **Camera** app in **Slo-mo** mode.
-2. Record a **8–15 second** clip. The extra length lets you trim off the shaky start and end where you tapped the button — FlickerScope's timeline controls can isolate just the stable portion.
+2. Record a **8–15 second** clip. The extra length lets you trim off the shaky start and end where you tapped the button. FlickerScope's timeline controls can isolate just the stable portion.
 3. Open **[FlickerScope](https://snokamedia.github.io/flickerscope/)** in Safari or Chrome.
 4. **Upload from Files, not Photos.** This is the most important step (see below).
 

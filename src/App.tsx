@@ -230,7 +230,7 @@ export default function App() {
                   <p>
                     Camera ISP processing (tone mapping, denoising, HDR, auto-exposure),
                     rolling shutter, gamma correction, and compression artifacts may affect
-                    measurement accuracy. Results are diagnostic — not certifiable.
+                    measurement accuracy. Results are diagnostic, not certifiable.
                   </p>
                 </section>
                 <section>

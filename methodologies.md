@@ -1,4 +1,4 @@
-# FlickerScope — Methodologies
+# FlickerScope. Methodologies
 
 > **Version:** 0.3.2  
 ---
@@ -35,7 +35,7 @@ FlickerScope is a **fully client-side browser application** that estimates domin
 
 | Principle | Rationale |
 |-----------|-----------|
-| **100 % client-side** | No video data ever leaves the browser. Privacy is a hard requirement — the app must work without any server. |
+| **100 % client-side** | No video data ever leaves the browser. Privacy is a hard requirement, the app must work without any server. |
 | **Explainable metrics** | Every computed value has a documented formula, reference to a known standard, or a clear rationale. The codebase carries inline comments sufficient for expert peer review. |
 | **Conservative claims** | The app labels itself as a screening tool, not a standards-certified flicker meter. Results are qualified with confidence scores, notes, and explicit limitations. |
 | **Video-first sampling** | Unlike photometric flicker meters that sample at 1–10 kHz with calibrated sensors, FlickerScope extracts luminance from video frames at typical slow-motion rates (120–240 fps). This fundamental constraint limits the measurable frequency band and absolute accuracy. |
@@ -44,14 +44,14 @@ FlickerScope is a **fully client-side browser application** that estimates domin
 
 FlickerScope references the following standards and publications where applicable:
 
-- **IEEE 1789-2015** — *Recommended Practices for Modulating Current in High-Brightness LEDs for Mitigating Health Risks to Viewers*
-- **IEC 61000-4-15** — *Electromagnetic compatibility (EMC) — Testing and measurement techniques — Flickermeter — Functional and design specifications*
-- **IES LM-79** — *Electrical and Photometric Measurements of Solid-State Lighting Products*
-- **CIE TN 012:2021** — *Guidance on the Measurement of Temporal Light Modulation of Lighting Systems*
-- **ASSIST MP** — *A Proposed Method for Measuring and Reporting Flicker* (Vol. 11, Issue 1, 2012)
-- **Li & Ohno (2023)** — *Revision of the MP Calculation Method for Flicker Measurement*
-- **Kelly (1961)** — *Visual responses to time-dependent stimuli*
-- **de Lange (1958)** — *Research into the dynamic nature of the human fovea*
+- IEEE 1789-2015: *Recommended Practices for Modulating Current in High-Brightness LEDs for Mitigating Health Risks to Viewers*
+- IEC 61000-4-15: *Electromagnetic compatibility (EMC). Testing and measurement techniques. Flickermeter. Functional and design specifications*
+- IES LM-79: *Electrical and Photometric Measurements of Solid-State Lighting Products*
+- CIE TN 012:2021: *Guidance on the Measurement of Temporal Light Modulation of Lighting Systems*
+- ASSIST MP: *A Proposed Method for Measuring and Reporting Flicker* (Vol. 11, Issue 1, 2012)
+- Li & Ohno (2023): *Revision of the MP Calculation Method for Flicker Measurement*
+- Kelly (1961): *Visual responses to time-dependent stimuli*
+- de Lange (1958): *Research into the dynamic nature of the human fovea*
 
 > **Important:** FlickerScope is an approximation of these standards, not a certified implementation. Results should be treated as screening-level estimates.
 
@@ -71,9 +71,9 @@ File (Blob) → Input(BlobSource) → Primary Video Track → Metadata + Sample 
 
 Mediabunny was chosen over raw WebCodecs for three reasons:
 
-1. **Container demuxing** — WebCodecs operates on raw coded frames (`EncodedVideoChunk`), not container formats. Mediabunny handles MP4, WebM, and other container demuxing transparently.
-2. **Cross-browser format negotiation** — The library abstracts format support queries (`ALL_FORMATS`, `canDecode`), reducing platform-specific code.
-3. **Sample iteration** — `VideoSampleSink` provides an async iterator over decoded frames with optional time-range filtering, directly matching the spec's need to extract luminance from a selected segment.
+1. Container demuxing: WebCodecs operates on raw coded frames (`EncodedVideoChunk`), not container formats. Mediabunny handles MP4, WebM, and other container demuxing transparently.
+2. Cross-browser format negotiation: The library abstracts format support queries (`ALL_FORMATS`, `canDecode`), reducing platform-specific code.
+3. Sample iteration: `VideoSampleSink` provides an async iterator over decoded frames with optional time-range filtering, directly matching the spec's need to extract luminance from a selected segment.
 
 ### 2.3 Metadata extraction
 
@@ -90,7 +90,7 @@ The `BlobSource` constructor accepts a `File` or `Blob`. The optional second par
 
 **Codec support check:** The application checks whether the reported codec string (e.g., `'avc'`, `'hevc'`, `'vp9'`, `'av1'`) is in the set of known supported codecs. If not, a warning badge is shown but analysis is still attempted, since Mediabunny's runtime `canDecode` check may be more permissive than string matching.
 
-**Frame rate (`fpsDecoded`):** The application uses Mediabunny's `computeFrameRateMetrics()` on encoded-packet timestamps (no decode) to estimate the intended frame rate and detect VFR (see §4.1). This `fpsDecoded` value is the primary frame rate for the tier gate and the metadata panel, because some devices — particularly iPhones — repackage slow-motion footage with a container playback rate that differs from the actual capture rate (e.g., 240 fps footage showing as 30 fps in container metadata). The lattice fit reads actual packet cadence rather than trusting that container rate.
+**Frame rate (`fpsDecoded`):** The application uses Mediabunny's `computeFrameRateMetrics()` on encoded-packet timestamps (no decode) to estimate the intended frame rate and detect VFR (see §4.1). This `fpsDecoded` value is the primary frame rate for the tier gate and the metadata panel, because some devices, particularly iPhones, repackage slow-motion footage with a container playback rate that differs from the actual capture rate (e.g., 240 fps footage showing as 30 fps in container metadata). The lattice fit reads actual packet cadence rather than trusting that container rate.
 
 ### 2.4 FPS constraint tiers
 
@@ -122,9 +122,9 @@ where `R_linear`, `G_linear`, `B_linear` are sRGB‑linearized channel values.
 
 The `getImageData()` method returns **8‑bit sRGB‑encoded** values, not linear‑light measurements. Applying the Rec. 709 luminance coefficients directly to gamma‑encoded data yields *luma* (Y′), not physical *luminance* (Y). For a flicker measurement system that claims to track physical light modulation, this distinction matters:
 
-- **Modulation depth** — sRGB gamma compresses dark values and expands mid‑tones, biasing the measured contrast ratio. A physical 50% modulation can appear as 73% in gamma‑encoded space.
-- **Flicker index** — The area‑based flicker index integrates light output over time. Using gamma‑encoded values distorts the area ratios.
-- **Threshold crossings** — Duty‑cycle measurement depends on accurate threshold levels; gamma distortion shifts where transitions are detected.
+- Modulation depth: sRGB gamma compresses dark values and expands mid‑tones, biasing the measured contrast ratio. A physical 50% modulation can appear as 73% in gamma‑encoded space.
+- Flicker index: The area‑based flicker index integrates light output over time. Using gamma‑encoded values distorts the area ratios.
+- Threshold crossings: Duty‑cycle measurement depends on accurate threshold levels; gamma distortion shifts where transitions are detected.
 
 The correction applies the sRGB standard transfer function (IEC 61966‑2‑1):
 
@@ -139,9 +139,9 @@ A **256‑entry lookup table** is precomputed at module load time, mapping each 
 
 The canvas is downsampled to 64 × 36 pixels (a 2.3 MP → 2.3 kP reduction). This aggressive downsampling is acceptable because:
 
-1. **The application averages across the entire frame** — spatial detail is discarded by design.
+1. The application averages across the entire frame: spatial detail is discarded by design.
 2. **Anti‑aliasing during `drawImage`** provides a hardware‑accelerated average, which is preferable to a manual per‑pixel loop at full resolution.
-3. **Performance** — at 240 fps, decoding and processing one second of video involves 240 frames × 2,304 pixels/frame ≈ 550 k pixel operations, which stays well within worker frame budgets.
+3. Performance: at 240 fps, decoding and processing one second of video involves 240 frames × 2,304 pixels/frame ≈ 550 k pixel operations, which stays well within worker frame budgets.
 
 ---
 
@@ -149,7 +149,7 @@ The canvas is downsampled to 64 × 36 pixels (a 2.3 MP → 2.3 kP reduction). Th
 
 ### 4.1 Frame-rate metrics (`computeFrameRateMetrics`)
 
-Metadata frame rate and VFR detection use Mediabunny's `computeFrameRateMetrics()` (encoded-packet timestamps only — `metadataOnly`, no decode):
+Metadata frame rate and VFR detection use Mediabunny's `computeFrameRateMetrics()` (encoded-packet timestamps only `metadataOnly`, no decode):
 
 ```typescript
 const metrics = await videoTrack.computeFrameRateMetrics({
@@ -195,7 +195,7 @@ Earlier versions used `computePacketStats().averagePacketRate` for average rate 
 
 ### 4.3 Analysis sample rate (unchanged)
 
-The worker’s `computeEffectiveSampleRate()` (see §7) independently computes the sample rate from the **extracted segment** timestamps for FFT use. Track-level metrics do not replace that — a trimmed analysis window may differ slightly from clip-wide `fpsDecoded`.
+The worker’s `computeEffectiveSampleRate()` (see §7) independently computes the sample rate from the **extracted segment** timestamps for FFT use. Track-level metrics do not replace that, a trimmed analysis window may differ slightly from clip-wide `fpsDecoded`.
 
 ---
 
@@ -229,7 +229,7 @@ The user selects an analysis segment using a dual‑handle slider spanning the v
 
 ### 6.1 Why resampling is necessary
 
-The FFT algorithm assumes **uniformly spaced samples** in the time domain. Video frame timestamps — even from "constant" frame rate sources — exhibit small‑scale jitter from:
+The FFT algorithm assumes **uniformly spaced samples** in the time domain. Video frame timestamps, even from "constant" frame rate sources, exhibit small‑scale jitter from:
 
 - Container muxing granularity (presentation timestamps are typically quantized to 1/90000 s or 1/1000 s).
 - Variable decode latency that propagates to sample emission order in the software pipeline.
@@ -316,7 +316,7 @@ y_detrended[i] = y_i − (slope × i + intercept)
 
 ### 7.3 Hann window
 
-The Hann (raised‑cosine) window is applied before the FFT to reduce **spectral leakage** — the smearing of energy from a frequency bin into adjacent bins caused by the implicit rectangular window of finite‑length sampling.
+The Hann (raised‑cosine) window is applied before the FFT to reduce spectral leakage: the smearing of energy from a frequency bin into adjacent bins caused by the implicit rectangular window of finite‑length sampling.
 
 ```
 w[n] = 0.5 × (1 − cos(2π × n / (N−1)))
@@ -372,7 +372,7 @@ Bins with frequency < 5 Hz are excluded from peak detection and MP analysis. The
 
 - Electric light flicker from mains‑powered sources operates at ≥ 50 Hz (Europe) or ≥ 60 Hz (North America), or their harmonics.
 - LED PWM drivers typically operate at ≥ 1 kHz; any visible flicker is from the mains‑frequency envelope, not sub‑5 Hz modulation.
-- Sub‑5 Hz modulation in consumer video is almost always from scene motion, exposure drift, or camera instability — not the light source.
+- Sub‑5 Hz modulation in consumer video is almost always from scene motion, exposure drift, or camera instability, not the light source.
 
 The 5 Hz cutoff is a domain‑specific heuristic. For non‑electric light sources (e.g., natural fire, mechanical shutters), this cutoff would need adjustment.
 
@@ -384,9 +384,9 @@ The 5 Hz cutoff is a domain‑specific heuristic. For non‑electric light sourc
 
 Reliable peak detection in a flicker spectrum must handle:
 
-- **Multiple harmonics** — A square‑wave PWM signal has odd harmonics (3×, 5×, 7×) that can be stronger than the fundamental.
-- **Spectral leakage sidelobes** — Even with Hann windowing, nearby bins show elevated power around strong peaks.
-- **Noise floor variations** — Camera sensor noise, compression artifacts, and scene motion contribute a non‑uniform noise floor.
+- Multiple harmonics: A square‑wave PWM signal has odd harmonics (3×, 5×, 7×) that can be stronger than the fundamental.
+- Spectral leakage sidelobes: Even with Hann windowing, nearby bins show elevated power around strong peaks.
+- Noise floor variations: Camera sensor noise, compression artifacts, and scene motion contribute a non‑uniform noise floor.
 
 ### 8.2 Algorithm
 
@@ -420,7 +420,7 @@ The prominence is the candidate's power minus the **higher** of the two valley m
 prominence = peakPower − max(valleyLeft, valleyRight)
 ```
 
-Using `max` of the two valleys (instead of `min`) prevents overcounting peaks on a sloping spectrum floor — a peak must rise above both adjacent valleys to qualify.
+Using `max` of the two valleys (instead of `min`) prevents overcounting peaks on a sloping spectrum floor, a peak must rise above both adjacent valleys to qualify.
 
 A peak is retained if `prominence > noiseFloor × 1.5`.
 
@@ -440,8 +440,8 @@ The top **5 peaks** by power are returned.
 
 The original implementation used a prominence window of 2% of the spectrum length. This was identified as a problem during the Perplexity review because:
 
-- **At low frequencies** (e.g., 5 Hz), 2% of a 512‑bin spectrum ≈ 10 bins, corresponding to ≈ 4.7 Hz — too narrow to reach the true valley floor for a 5 Hz peak.
-- **At high frequencies** (e.g., 80 Hz), 2% is the same 10 bins, corresponding to ≈ 4.7 Hz — wider than needed.
+- **At low frequencies** (e.g., 5 Hz), 2% of a 512‑bin spectrum ≈ 10 bins, corresponding to ≈ 4.7 Hz, too narrow to reach the true valley floor for a 5 Hz peak.
+- **At high frequencies** (e.g., 80 Hz), 2% is the same 10 bins, corresponding to ≈ 4.7 Hz, wider than needed.
 
 Switching to a **fixed‑Hz radius** (~5 Hz) makes the algorithm scale automatically with bin density, which varies with segment duration and FFT size.
 
@@ -451,7 +451,7 @@ Switching to a **fixed‑Hz radius** (~5 Hz) makes the algorithm scale automatic
 
 ### 9.1 Motivation
 
-The raw FFT bin spacing Δf = fs / N ≈ 240 Hz / 600 ≈ 0.4 Hz. For therapy validation — where the pass criterion is 39.5–40.5 Hz ± 0.1 Hz — this bin spacing is insufficient. The peak could be 0.2 Hz away from the correct frequency simply due to bin quantization.
+The raw FFT bin spacing Δf = fs / N ≈ 240 Hz / 600 ≈ 0.4 Hz. For therapy validation, where the pass criterion is 39.5–40.5 Hz ± 0.1 Hz, this bin spacing is insufficient. The peak could be 0.2 Hz away from the correct frequency simply due to bin quantization.
 
 ### 9.2 Method
 
@@ -538,7 +538,7 @@ At least 10 full cycles yields full confidence. A 240 fps, 2-second segment at 6
 
 ### 10.5 Spectral concentration
 
-Spectral concentration measures the **sharpness** of the dominant peak — how much of the local spectral energy is concentrated in the main lobe versus spread across a wider band:
+Spectral concentration measures the **sharpness** of the dominant peak, how much of the local spectral energy is concentrated in the main lobe versus spread across a wider band:
 
 ```
 innerPower = Σ(powers[peakIdx − ci] … powers[peakIdx + ci])     // ci ≈ ±1 Hz
@@ -560,9 +560,9 @@ For the confidence formula, it enters as a pre-computed score `welchStability �
 
 | Score | Meaning |
 |-------|---------|
-| ~1.0 | All sub-windows agree with the dominant frequency — high confidence that the detection is a stable, real signal. |
-| 0.5 | Default when segmentation is insufficient (< 2 valid sub-windows) — neutral, no penalty. |
-| ~0.0 | Sub-windows disagree strongly — likely a transient or unstable artifact. |
+| ~1.0 | All sub-windows agree with the dominant frequency, high confidence that the detection is a stable, real signal. |
+| 0.5 | Default when segmentation is insufficient (< 2 valid sub-windows), neutral, no penalty. |
+| ~0.0 | Sub-windows disagree strongly, likely a transient or unstable artifact. |
 
 In practice, the score is a continuous value whose granularity depends on the number of sub-windows (typically 3–20 for common segment lengths).
 
@@ -574,9 +574,9 @@ confidence = min(1, 0.35 × PNR + 0.20 × Nyquist + 0.15 × Cycles + 0.15 × Con
 
 The five-factor composite provides robustness against three specific failure modes that the original three-factor system could miss:
 
-1. **Broad noise peaks with high PNR** — spectral concentration penalizes them.
-2. **Transient or camera-shake pseudo-flicker** — Welch stability flags frequency drift across sub-windows.
-3. **Low-SNR peaks with many cycles** — the absolute PNR veto (10 dB) prevents false positives from noise-driven maxima even when cycle count and Nyquist proximity look good.
+1. Broad noise peaks with high PNR: spectral concentration penalizes them.
+2. Transient or camera-shake pseudo-flicker: Welch stability flags frequency drift across sub-windows.
+3. Low-SNR peaks with many cycles: the absolute PNR veto (10 dB) prevents false positives from noise-driven maxima even when cycle count and Nyquist proximity look good.
 
 ---
 
@@ -596,9 +596,9 @@ Where `L_max` and `L_min` are the maximum and minimum luminance values in the an
 
 This metric is specified in:
 
-- **IEEE 1789-2015** — Uses percent flicker as the primary axis on the risk‑region chart.
-- **CIE TN 012:2021** — Defines percent flicker as the standard metric for characterizing temporal light modulation amplitude.
-- **IES LM-79** — References percent flicker for reporting LED product modulation.
+- IEEE 1789-2015: Uses percent flicker as the primary axis on the risk‑region chart.
+- CIE TN 012:2021: Defines percent flicker as the standard metric for characterizing temporal light modulation amplitude.
+- IES LM-79: References percent flicker for reporting LED product modulation.
 
 The metric is dimensionless, normalized to the DC level (mean luminance ≈ (L_max + L_min)/2 for symmetric waveforms), and direct to interpret: a 100% modulation means the light fully extinguishes each cycle; 0% means no modulation.
 
@@ -626,7 +626,7 @@ flickerIndex = ∫ max(0, Y(t) − Ȳ) dt / ∫ Y(t) dt
 
 ### 12.2 Why this definition
 
-The flicker index captures the **shape** of the waveform, not just its extreme values. A narrow, bright pulse (low duty cycle, high peak) and a sinusoidal waveform with the same percent flicker can have very different flicker indices. This provides additional information about the visual impact — waveforms with the same energy above the mean can look different.
+The flicker index captures the **shape** of the waveform, not just its extreme values. A narrow, bright pulse (low duty cycle, high peak) and a sinusoidal waveform with the same percent flicker can have very different flicker indices. This provides additional information about the visual impact, waveforms with the same energy above the mean can look different.
 
 ### 12.3 Implementation: trapezoidal integration
 
@@ -689,7 +689,7 @@ cyclePeriods = [t_up_2 − t_up_1, t_up_3 − t_up_2, ...]
 rmsJitter = σ(cyclePeriods) = √(Σ(p_i − p̄)² / n)
 ```
 
-**Why this matters:** If duty cycle ≠ 50%, the ON and OFF distributions have different means. Pooling them (`allPeriods = [...onPeriods, ...offPeriods]` as implemented in an earlier version) inflates the variance — and thus the jitter estimate — purely from the mean difference, not from actual cycle‑to‑cycle timing variation:
+**Why this matters:** If duty cycle ≠ 50%, the ON and OFF distributions have different means. Pooling them (`allPeriods = [...onPeriods, ...offPeriods]` as implemented in an earlier version) inflates the variance, and thus the jitter estimate, purely from the mean difference, not from actual cycle‑to‑cycle timing variation:
 
 | Duty cycle | True timing variation | Pooled‑period std dev | Same‑direction std dev |
 |-----------|----------------------|----------------------|------------------------|
@@ -717,10 +717,10 @@ At 240 fps, this improves timing precision from ±2.1 ms (sample quantization) t
 
 IEEE 1789‑2015 defines risk regions for flicker based on two parameters:
 
-- **Percent flicker** (modulation depth) — the `x`‑axis of the risk chart.
-- **Frequency** — the `y`‑axis.
+- Percent flicker (modulation depth): the `x`‑axis of the risk chart.
+- Frequency: the `y`‑axis.
 
-The standard defines three regions: **No Observable Effect Level (NOEL)**, **Low risk**, and **High risk**. FlickerScope uses a five‑level verdict (`none`, `noel`, `low-risk`, `elevated`, `high`, `uncertain`). The `none` verdict indicates no discernible flicker was found (see §18.8). The `high` verdict at f ≥ 100 Hz is an **app-defined tier** based on 0.20 × f threshold, not part of the IEEE 1789 standard — the standard does not define a "high" region above 100 Hz beyond its single "low risk" boundary.
+The standard defines three regions: **No Observable Effect Level (NOEL)**, **Low risk**, and **High risk**. FlickerScope uses a five‑level verdict (`none`, `noel`, `low-risk`, `elevated`, `high`, `uncertain`). The `none` verdict indicates no discernible flicker was found (see §18.8). The `high` verdict at f ≥ 100 Hz is an **app-defined tier** based on 0.20 × f threshold, not part of the IEEE 1789 standard, the standard does not define a "high" region above 100 Hz beyond its single "low risk" boundary.
 
 ### 14.2 Piecewise thresholds
 
@@ -730,13 +730,13 @@ The implementation follows these piecewise boundary lines (shown as percent modu
 |--------|-----------|-----------------|------------|
 | **NOEL** | mod ≤ 0.01 × f | mod ≤ 0.0333 × f | mod ≤ 0.0333 × f |
 | **Low risk** | 0.01 × f < mod ≤ 0.08 × f | 0.0333 × f < mod ≤ 0.08 × f | 0.0333 × f < mod ≤ 0.08 × f |
-| **Elevated** | 0.08 × f < mod | 0.08 × f < mod | — |
-| **High** | — | — | mod > 0.20 × f (app-defined) |
+| **Elevated** | 0.08 × f < mod | 0.08 × f < mod | n/a |
+| **High** | n/a | | mod > 0.20 × f (app-defined) |
 
 Key properties of this implementation:
 
 1. **NOEL at f ≥ 100 Hz:** The NOEL threshold for f ≥ 100 Hz is set to `0.0333 × f`, matching the 90–100 Hz transition band. An earlier version omitted a NOEL threshold for f ≥ 100 Hz entirely, causing modulation levels like 12% at 120 Hz to be incorrectly classified as `noel` when they exceed the ASSIST-recommended low-risk guideline.
-2. **Three tiers at f ≥ 100 Hz:** Even at high frequencies, the system distinguishes NOEL (≤ 0.0333 × f), low-risk (0.0333 × f to 0.08 × f), and high (> 0.20 × f) — rather than collapsing to a single threshold. The `high` tier at 0.20 × f is an app-defined screening threshold beyond the IEEE 1789 low-risk boundary.
+2. **Three tiers at f ≥ 100 Hz:** Even at high frequencies, the system distinguishes NOEL (≤ 0.0333 × f), low-risk (0.0333 × f to 0.08 × f), and high (> 0.20 × f), rather than collapsing to a single threshold. The `high` tier at 0.20 × f is an app-defined screening threshold beyond the IEEE 1789 low-risk boundary.
 3. **No automatic remapping:** Earlier versions remapped `low-risk` → `noel` and `elevated` → `high` for f ≥ 100 Hz. This was removed because it could silently downgrade genuine low-risk detections and obscure the actual modulation level.
 
 ### 14.3 Mapping to IEEE 1789 and app-defined labels
@@ -744,10 +744,10 @@ Key properties of this implementation:
 | FlickerScope verdict | IEEE 1789 region / meaning |
 |---------------------|----------------------------|
 | `none` | No discernible frequency found (no‑flicker gate triggered, see §18.8) |
-| `noel` | Below NOEL line — flicker is theoretically imperceptible |
-| `low-risk` | Between NOEL and low‑risk line — flicker may be visible but risk is minimal |
-| `elevated` | Above low‑risk line (f < 100 Hz) — flicker likely visible; investigate |
-| `high` | Above 0.20 × f (≥ 100 Hz, app-defined) — strong modulation at high frequencies |
+| `noel` | Below NOEL line, flicker is theoretically imperceptible |
+| `low-risk` | Between NOEL and low‑risk line, flicker may be visible but risk is minimal |
+| `elevated` | Above low‑risk line (f < 100 Hz), flicker likely visible; investigate |
+| `high` | Above 0.20 × f (≥ 100 Hz, app-defined), strong modulation at high frequencies |
 | `uncertain` | Confidence too low for reliable classification |
 
 ---
@@ -796,7 +796,7 @@ Each criterion receives a pass / warning / fail verdict. The **composite score**
 
 ### 15.3 Why 20 Hz subharmonic is a red flag
 
-A 20 Hz component in the spectrum — half the target 40 Hz — is a **primary red flag** because:
+A 20 Hz component in the spectrum, half the target 40 Hz, is a **primary red flag** because:
 
 - If the light source is producing 20 Hz modulation (from a mis‑configured LED driver or 50 Hz mains half‑wave rectification), it indicates the source is not producing clean 40 Hz flicker.
 - The therapeutic protocol specifically calls for 40 Hz, not its subharmonic.
@@ -812,16 +812,16 @@ A 40 Hz square wave with 50% duty cycle has odd harmonics: 120 Hz (3rd), 200 Hz 
 
 | Capture rate | Nyquist limit | 120 Hz resolvable? |
 |-------------|---------------|-------------------|
-| **120 fps** | 60 Hz | No — above Nyquist entirely |
-| **240 fps** | 120 Hz | **Borderline** — at exactly Nyquist, 120 Hz aliases to DC and cannot be reliably distinguished |
-| **480 fps** | 240 Hz | Yes — well within measurable band |
-| **960 fps** | 480 Hz | Yes — 3rd and 5th harmonics resolvable |
+| **120 fps** | 60 Hz | No, above Nyquist entirely |
+| **240 fps** | 120 Hz | Borderline: at exactly Nyquist, 120 Hz aliases to DC and cannot be reliably distinguished |
+| **480 fps** | 240 Hz | Yes, well within measurable band |
+| **960 fps** | 480 Hz | Yes 3rd and 5th harmonics resolvable |
 
-At 240 fps, a 120 Hz signal falls precisely at the Nyquist frequency (`fs / 2`). At Nyquist, the signal is indistinguishable from DC — its measured magnitude depends on the signal's phase relative to the sampling lattice and is essentially random. **The 120 Hz check is therefore skipped when the effective sample rate ≤ 250 Hz.**
+At 240 fps, a 120 Hz signal falls precisely at the Nyquist frequency (`fs / 2`). At Nyquist, the signal is indistinguishable from DC, its measured magnitude depends on the signal's phase relative to the sampling lattice and is essentially random. **The 120 Hz check is therefore skipped when the effective sample rate ≤ 250 Hz.**
 
-The topPeaks array may still report a bin near 120 Hz, but the therapy validator will not produce a red flag for a missing 120 Hz peak unless the capture rate supports it. Instead, a note is added: *"120 Hz harmonic check skipped — capture at ≥ 480 fps to verify odd-harmonic structure."*
+The topPeaks array may still report a bin near 120 Hz, but the therapy validator will not produce a red flag for a missing 120 Hz peak unless the capture rate supports it. Instead, a note is added: *"120 Hz harmonic check skipped, capture at ≥ 480 fps to verify odd-harmonic structure."*
 
-The **80 Hz (2nd harmonic) suppression check** is unaffected — 80 Hz is well below the Nyquist limit at 240 fps and can be reliably measured. A strong 80 Hz peak remains a valid indicator of duty-cycle asymmetry.
+The **80 Hz (2nd harmonic) suppression check** is unaffected 80 Hz is well below the Nyquist limit at 240 fps and can be reliably measured. A strong 80 Hz peak remains a valid indicator of duty-cycle asymmetry.
 
 This criterion is lower‑weighted than frequency accuracy or subharmonic suppression because some valid 40 Hz sources (e.g., sine‑wave modulated LEDs) will not show the 120 Hz harmonic even with adequate sampling.
 
@@ -837,7 +837,7 @@ The **MP (Métrique de Papillon / Flicker Perception Metric)** was developed by 
 - **MP < 1** means flicker is below the threshold of visibility for most people.
 - **MP > 1** means flicker is likely visible.
 
-The original MP specification (ASSIST, 2012) is sensitive to waveform duration and starting phase — two labs measuring the same light source could report MP values differing by > 2×. Li & Ohno (2023) proposed a **Hann‑windowed revision** that dramatically reduces this measurement variability.
+The original MP specification (ASSIST, 2012) is sensitive to waveform duration and starting phase, two labs measuring the same light source could report MP values differing by > 2×. Li & Ohno (2023) proposed a **Hann‑windowed revision** that dramatically reduces this measurement variability.
 
 ### 16.2 FlickerScope's MP proxy
 
@@ -874,7 +874,7 @@ The Minimum Detectable Modulation Depth (MDT) table encodes the human temporal c
 | 70 | 0.460 |
 | 80 | 0.613 |
 
-**Important caveat:** These values are directionally correct but have not been empirically calibrated against reference waveforms. The table should be fitted using a synthetic test set — generate waveforms at known MP values, run them through the video pipeline, and adjust the MDT scale factor to minimize MP error.
+**Important caveat:** These values are directionally correct but have not been empirically calibrated against reference waveforms. The table should be fitted using a synthetic test set, generate waveforms at known MP values, run them through the video pipeline, and adjust the MDT scale factor to minimize MP error.
 
 ### 16.4 Pipeline
 
@@ -893,10 +893,10 @@ Where `a = 1.0` and `b = 0.0` are placeholders; `a` and `b` should be fitted aga
 
 | MP_proxy range | Description |
 |----------------|-------------|
-| < 0.3 | Very low — unlikely perceptible |
+| < 0.3 | Very low, unlikely perceptible |
 | 0.3 – 1.0 | Below typical detection threshold |
-| 1.0 – 3.0 | Likely visible — above 50% detection threshold |
-| ≥ 3.0 | Strong — likely obvious to most observers |
+| 1.0 – 3.0 | Likely visible, above 50% detection threshold |
+| ≥ 3.0 | Strong, likely obvious to most observers |
 
 ### 16.6 Why a proxy
 
@@ -964,7 +964,7 @@ Deviations from typical light/dark mode:
 ### 18.1 Sampling rate ceiling
 
 The hard ceiling for our analysis is the video frame rate. At 240 fps:
-- Nyquist frequency = 120 Hz — adequate for mains fundamental (50/60 Hz) and second harmonic (100/120 Hz).
+- Nyquist frequency = 120 Hz, adequate for mains fundamental (50/60 Hz) and second harmonic (100/120 Hz).
 - Third harmonic (150/180 Hz) is above Nyquist and will alias.
 - High‑frequency LED PWM (1–10 kHz) cannot be measured at all.
 
@@ -988,7 +988,7 @@ Unlike a dedicated flicker meter with a calibrated photodiode, FlickerScope has 
 
 ### 18.4 MP proxy calibration
 
-The MDT table (Section 16.3) has not been empirically calibrated. The `a` and `b` coefficients in the MP_proxy calibration formula are set to 1.0 and 0.0 — effectively passing the raw score through without adjustment. Proper calibration would require:
+The MDT table (Section 16.3) has not been empirically calibrated. The `a` and `b` coefficients in the MP_proxy calibration formula are set to 1.0 and 0.0, effectively passing the raw score through without adjustment. Proper calibration would require:
 
 1. Generating synthetic sinewave flicker at several frequencies (10, 30, 54, 80 Hz) and modulation depths (1%, 3%, 10%, 30%, 100%).
 2. Computing "true" MP values for these waveforms using a reference implementation.
@@ -1003,7 +1003,7 @@ The 40 Hz therapy validation rubric is based on published research criteria for 
 
 VFR classification uses `computeFrameRateMetrics().underlyingFrameRate === null` over the **entire** packet timestamp set (`targetPacketCount: Infinity`), not a short decoded prefix. Cadence changes mid-clip can still yield a null lattice (correctly treated as VFR) or a lattice that fits the dominant grid; `frameRateIsConstant` additionally flags CFR with dropped frames.
 
-**iOS Photos reprocessing:** The `fpsDecoded` feature (§4.1) addresses the case where iPhone slow-motion container metadata reports 30 fps while the actual capture rate is 240 fps. However, if the user uploads directly from the **Photos library** (rather than from the Files app), iOS may serve a genuinely reprocessed video with different frame timing — not just different metadata. The capture guide now directs iOS users to save to Files first (see §18.12).
+**iOS Photos reprocessing:** The `fpsDecoded` feature (§4.1) addresses the case where iPhone slow-motion container metadata reports 30 fps while the actual capture rate is 240 fps. However, if the user uploads directly from the **Photos library** (rather than from the Files app), iOS may serve a genuinely reprocessed video with different frame timing, not just different metadata. The capture guide now directs iOS users to save to Files first (see §18.12).
 
 ### 18.7 The worker bundle
 
@@ -1017,7 +1017,7 @@ The current gate uses three criteria checked in order:
 
 1. **Prominence peak support:** The global max bin must align with a prominence-qualified peak (`findSpectrumPeaks`) within 1.5 Hz. This is the primary discriminator: a noise-driven global maximum rarely has the spectral profile (local rise above both adjacent valleys) of a true periodic signal. Random noise may produce an elevated bin, but the binned energy is spread across neighbors without the sharp peak-and-valley structure of a real signal.
 2. **Peak-to-noise ratio:** The global max must be at least 10 dB (10× linear) above the median of the local noise annulus (±10–30 Hz ring). This guards against false positives from residual low-frequency energy that passes the prominence check (e.g., slow camera exposure drift).
-3. **Minimum modulation:** The Michelson contrast of the original (non-detrended) luminance signal must be at least 1.0%. This catches the rare case where both a prominence peak and high PNR exist but the actual luminance variation is trivially small — essentially a high-SNR measurement of a meaningless signal.
+3. **Minimum modulation:** The Michelson contrast of the original (non-detrended) luminance signal must be at least 1.0%. This catches the rare case where both a prominence peak and high PNR exist but the actual luminance variation is trivially small, essentially a high-SNR measurement of a meaningless signal.
 
 If any criterion fails, the verdict is set to `none` and the result is reported as "No discernible frequency found." This gate acts before the IEEE 1789 verdict: if `none`, the risk-level verdict is never displayed.
 
@@ -1048,17 +1048,17 @@ signal → split into overlapping sub-windows (50% overlap, ~1/3 of segment leng
 ```
 
 **Sub-window parameters:**
-- Length: `min(max(64, floor(n / 3)), 512)` samples — roughly one-third of the segment, capped at 512 for performance.
+- Length: `min(max(64, floor(n / 3)), 512)` samples, roughly one-third of the segment, capped at 512 for performance.
 - Hop: 50% overlap (`winLen / 2`).
 - Minimum: 2 valid sub-windows required; below that, score defaults to 0.5 (neutral).
 
 **Two-component scoring:**
 
-1. **Agreement** — fraction of sub-windows whose dominant frequency falls within ±2 Hz of the global dominant frequency.
+1. Agreement: fraction of sub-windows whose dominant frequency falls within ±2 Hz of the global dominant frequency.
    - High agreement: the same frequency appears consistently across the segment.
    - Low agreement: the frequency drifts, indicating camera shake or transient disturbance.
 
-2. **Dispersion** — coefficient of variation (CV) of sub-window frequencies, transformed to a score:
+2. Dispersion: coefficient of variation (CV) of sub-window frequencies, transformed to a score:
    ```
    dispersionScore = max(0, 1 − min(1, CV × 3))
    ```
@@ -1087,7 +1087,7 @@ concentration = innerPower / outerPower
 concNorm = clamp((concentration − 0.3) / 0.65, 0, 1)
 ```
 
-The normalization empirically maps a typical noise floor ratio of ~0.3 to 0 and a tight flicker peak ratio of ~0.95 to 1.0. Unlike PNR, this factor is unaffected by the absolute power level — two signals with identical PNR but different spectral widths will score differently.
+The normalization empirically maps a typical noise floor ratio of ~0.3 to 0 and a tight flicker peak ratio of ~0.95 to 1.0. Unlike PNR, this factor is unaffected by the absolute power level, two signals with identical PNR but different spectral widths will score differently.
 
 ### 18.12 Frame rate on iOS (`fpsDecoded`)
 
@@ -1095,7 +1095,7 @@ The `fpsDecoded` feature (§4.1) solves a real-world failure mode specific to **
 
 1. **Needs valid packet timestamps.** Frame rate comes from Mediabunny’s encoded-packet timestamp lattice (`computeFrameRateMetrics`), not decode. If the demuxer cannot read the track, load fails before the tier gate. There is no separate `fpsAverage`-only decode fallback path.
 
-2. **iOS Photos app reprocessing remains an issue.** When a user uploads directly from the Photos library via the browser file picker, iOS may serve a reprocessed copy of the video rather than the original capture file. This reprocessed copy can have genuinely different frame timing — not just metadata — because iOS re-encodes the video. The lattice fit reads packet timestamps of whatever file was uploaded.
+2. **iOS Photos app reprocessing remains an issue.** When a user uploads directly from the Photos library via the browser file picker, iOS may serve a reprocessed copy of the video rather than the original capture file. This reprocessed copy can have genuinely different frame timing, not just metadata, because iOS re-encodes the video. The lattice fit reads packet timestamps of whatever file was uploaded.
 
    **Mitigation:** The app's capture guide now recommends iPhone users save the video to the **Files** app and upload from there, bypassing the Photos reprocessing pipeline. Additionally, disabling "Optimize iPhone Storage" in iCloud Photos settings reduces the chance of proxy files being served.
 

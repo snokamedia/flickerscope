@@ -24,40 +24,40 @@ export function StatStrip({ metadata, results }: Props) {
     },
     {
       label: 'Flicker',
-      value: results.verdict === 'none' ? '—' : `${results.frequencyHz.toFixed(1)} Hz`,
+      value: results.verdict === 'none' ? 'n/a' : `${results.frequencyHz.toFixed(1)} Hz`,
       highlight: results.verdict !== 'none',
       explanation: results.verdict === 'none'
-        ? 'No discernible dominant frequency — the light source appears to be steady (modulation or peak-to-noise ratio below detection threshold).'
+        ? 'No discernible dominant frequency. The light source appears to be steady (modulation or peak-to-noise ratio below detection threshold).'
         : `Dominant flicker frequency detected via FFT with parabolic interpolation for sub-bin precision. The highest peak in the power spectrum after prominence-based filtering (trimmed-median noise floor, 5 Hz prominence radius). Direct flicker is perceptible mainly below ~80 Hz; higher frequencies cause stroboscopic effects. Nyquist limit: ${(results.effectiveSampleRate / 2).toFixed(0)} Hz.`,
     },
     {
       label: 'Duty cycle',
-      value: results.timing ? `${results.timing.dutyCycle.toFixed(1)}%` : '—',
+      value: results.timing ? `${results.timing.dutyCycle.toFixed(1)}%` : 'n/a',
       explanation: results.timing
         ? `Percentage of each cycle the light is ON (above the 60th-percentile threshold). mean(ON) / [mean(ON) + mean(OFF)] × 100. Based on ${results.timing.numCycles} cycles. 50% = symmetric square wave. Low values (< 20%) indicate short bright pulses (common in PWM dimming). Threshold crossing times are linearly interpolated for sub-frame precision.`
-        : 'Not measurable — insufficient waveform data for hysteresis threshold detection.',
+        : 'Not measurable. Insufficient waveform data for hysteresis threshold detection.',
     },
     {
       label: 'Jitter',
-      value: results.timing ? `${results.timing.rmsJitterMs.toFixed(2)}ms` : '—',
+      value: results.timing ? `${results.timing.rmsJitterMs.toFixed(2)}ms` : 'n/a',
       explanation: results.timing
         ? `RMS variation of ${results.timing.numCycles} full-cycle periods from same-direction (ON→ON) threshold crossings (not mixed ON+OFF durations, which conflate jitter with duty-cycle asymmetry). Higher jitter indicates timing instability in the driver or mains frequency variation. Values > 2 ms suggest irregular cadence.`
         : 'Not measurable.',
     },
     {
       label: 'MP proxy',
-      value: results.mpProxy ? results.mpProxy.value.toFixed(2) : '—',
+      value: results.mpProxy ? results.mpProxy.value.toFixed(2) : 'n/a',
       highlight: results.mpProxy !== null && results.mpProxy.value > 1,
       warn: results.mpProxy !== null && results.mpProxy.confidence < 0.4,
       explanation: results.mpProxy
         ? `A video-based approximation of the MP flicker perception metric (revised MP structure: Hann window + C_H = 1.225 correction + MDT perceptual weighting from Kelly/de Lange CSF). Scores: < 0.3 = very low (unlikely perceptible), 0.3–1 = below 50% detection threshold, 1–3 = likely visible, ≥ 3 = strong. ${results.mpProxy.notes.length ? results.mpProxy.notes.join('; ').replace(/\.$/, '') : ''}`
-        : 'Not computed — requires ≥ 8 frames with minimum 0.5 s duration.',
+        : 'Not computed. Requires ≥ 8 frames with minimum 0.5 s duration.',
     },
     {
       label: 'Confidence',
       value: `${Math.round(results.confidence * 100)}%`,
       warn: results.confidence < 0.4,
-      explanation: `Three-factor composite: (1) peak-to-noise ratio (50%) — log-compressed prominence of dominant peak above noise floor (excludes ±15 bins around peak); (2) Nyquist proximity (30%) — quadratic penalty as frequency approaches Nyquist; (3) cycle count (20%) — min(numCycles / 10, 1). ≥ 70% = high, 40–70% = moderate, < 40% = low (results may be unreliable).`,
+      explanation: `Three-factor composite: (1) peak-to-noise ratio (50%), log-compressed prominence of dominant peak above noise floor (excludes ±15 bins around peak); (2) Nyquist proximity (30%), quadratic penalty as frequency approaches Nyquist; (3) cycle count (20%), min(numCycles / 10, 1). ≥ 70% = high, 40–70% = moderate, < 40% = low (results may be unreliable).`,
     },
     {
       label: 'Segment',

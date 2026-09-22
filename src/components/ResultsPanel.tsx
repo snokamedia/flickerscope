@@ -107,7 +107,7 @@ export function ResultsPanel({ results }: Props) {
                 High frequency (≥90 Hz): NOEL = 0.0333 × f, Low-risk = 0.08 × f
               </li>
               <li>
-                Measurements from camera video — for screening only, not formal certification
+                Measurements from camera video, for screening only and not formal certification
               </li>
             </ul>
           </div>
@@ -184,7 +184,7 @@ export function ResultsPanel({ results }: Props) {
               label="Jitter"
               value={`${results.timing.rmsJitterMs.toFixed(2)} ms`}
               explanation="RMS (root-mean-square) variation of consecutive cycle periods.
-                Computed from same-direction (ON→ON) crossings only — not mixing ON and OFF durations.
+                Computed from same-direction (ON→ON) crossings only, not mixing ON and OFF durations.
                 Higher jitter indicates timing instability in the light source or driver."
             />
             <StatWithPopover
@@ -242,7 +242,7 @@ export function ResultsPanel({ results }: Props) {
           />
           <StatWithPopover
             label="Nyquist margin"
-            value={results.frequencyHz > 0 ? `${nyquistMargin.toFixed(0)}%` : '—'}
+            value={results.frequencyHz > 0 ? `${nyquistMargin.toFixed(0)}%` : 'n/a'}
             warn={nyquistMargin < 30}
             explanation="How far the dominant frequency is from Nyquist, as a percentage.
               Above 50% is comfortable. Below 30% (amber) raises aliasing concerns.
@@ -331,7 +331,7 @@ function MpProxySection({ mp }: { mp: MpProxyResult }) {
         <p>
           Method: revised MP structure (Hann window + C_H = 1.225 correction) +
           MDT perceptual weighting (Kelly/de Lange CSF). Calibration against
-          reference waveforms is pending — scores are directionally correct
+          reference waveforms is pending. Scores are directionally correct
           but not standards-certified.
         </p>
       </div>

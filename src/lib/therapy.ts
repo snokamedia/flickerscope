@@ -163,40 +163,40 @@ export function validateTherapy(metrics: FlickerMetrics): TherapyReport | null {
 
   if (!twentyPass) {
     redFlags.push(
-      `Strong 20 Hz component (${(twentyHzRatio * 100).toFixed(0)}% of 40 Hz power) — `
-      + 'the 40 Hz signal may be a harmonic of a 20 Hz fundamental',
+      `Strong 20 Hz component (${(twentyHzRatio * 100).toFixed(0)}% of 40 Hz power). `
+      + 'The 40 Hz signal may be a harmonic of a 20 Hz fundamental.',
     );
   }
 
   if (duty !== null && (duty < 30 || duty > 70)) {
     redFlags.push(
-      `Duty cycle ${duty.toFixed(0)}% is far from the canonical 50% — `
-      + 'waveform shape deviates significantly from the therapeutic protocol',
+      `Duty cycle ${duty.toFixed(0)}% is far from the canonical 50%. `
+      + 'Waveform shape deviates significantly from the therapeutic protocol.',
     );
   }
 
   if (jitter !== null && jitter > 3) {
     redFlags.push(
-      `High timing jitter (${jitter.toFixed(1)} ms RMS) — `
-      + 'cycle-to-cycle stability is poor, may indicate device instability',
+      `High timing jitter (${jitter.toFixed(1)} ms RMS). `
+      + 'Cycle-to-cycle stability is poor and may indicate device instability.',
     );
   }
 
   if (mod < 20) {
     redFlags.push(
-      `Very low modulation depth (${mod.toFixed(0)}%) — `
-      + 'flicker may be too weak to produce entrainment',
+      `Very low modulation depth (${mod.toFixed(0)}%). `
+      + 'Flicker may be too weak to produce entrainment.',
     );
   }
 
   if (canMeasure120Hz && !harmonic120Present) {
     redFlags.push(
-      'Expected 120 Hz odd harmonic is absent or very weak — '
-      + 'waveform may not be a square wave, check device output type',
+      'Expected 120 Hz odd harmonic is absent or very weak. '
+      + 'Waveform may not be a square wave; check device output type.',
     );
   } else if (!canMeasure120Hz) {
     redFlags.push(
-      '120 Hz harmonic check skipped — effective sample rate '
+      '120 Hz harmonic check skipped. Effective sample rate '
       + `${metrics.effectiveSampleRate.toFixed(0)} Hz (Nyquist = ${nyquist.toFixed(0)} Hz) `
       + 'is too low to resolve the 3rd harmonic. Capture at ≥ 480 fps to verify odd-harmonic structure.',
     );
@@ -204,8 +204,8 @@ export function validateTherapy(metrics: FlickerMetrics): TherapyReport | null {
 
   if (!harmonic80Suppressed) {
     redFlags.push(
-      'Unexpected strong 80 Hz even harmonic — '
-      + 'duty cycle may deviate significantly from 50%',
+      'Unexpected strong 80 Hz even harmonic. '
+      + 'Duty cycle may deviate significantly from 50%.',
     );
   }
 

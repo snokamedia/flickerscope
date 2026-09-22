@@ -50,7 +50,7 @@ export function UploadDropzone({ onFile, disabled }: Props) {
         className="my-4 flex items-center justify-center gap-1 text-sm text-accent transition-colors hover:text-cyan-300"
       >
         <ArrowSquareOut className="size-3" />
-        Capture guide &mdash; how to record the right video
+        Capture guide: how to record the right video
       </a>
       <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-black transition hover:bg-cyan-300 w-full sm:w-auto">
         <UploadSimple className="size-4" />

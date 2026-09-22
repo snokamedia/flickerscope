@@ -1,6 +1,6 @@
 # FlickerScope
 
-**A fully client-side browser app for estimating dominant light flicker frequency and related waveform metrics from high-frame-rate video — with no video upload and no server processing.**
+**A fully client-side browser app for estimating dominant light flicker frequency and related waveform metrics from high-frame-rate video, with no video upload and no server processing.**
 
 FlickerScope analyzes user-supplied slow-motion video in the browser to estimate temporal light modulation characteristics such as dominant flicker frequency, effective frame rate, modulation depth, flicker index, harmonic structure, duty cycle, timing jitter, and selected perceptual or application-specific screening metrics. It is built for rapid investigation, comparative testing, and educational use when dedicated laboratory instrumentation is unavailable or impractical.
 
@@ -26,7 +26,7 @@ The easiest way to use FlickerScope is the hosted version:
 
 **[https://snokamedia.github.io/flickerscope/](https://snokamedia.github.io/flickerscope/)**
 
-Open it in any modern phone or desktop browser. It works entirely client-side — no uploads, no account, no install.
+Open it in any modern phone or desktop browser. It runs entirely client-side with no uploads, no account, and no install.
 
 ### Requirements
 
@@ -118,17 +118,17 @@ See the [Capturing Video for FlickerScope](https://github.com/snokamedia/flicker
 - Use **240 fps or higher** slow-motion capture whenever possible.
 - Lock exposure if the camera app supports it.
 - Disable HDR or other adaptive image enhancements if possible.
-- Keep the camera **stationary** — a tripod or phone stand helps greatly.
+- Keep the camera **stationary**. A tripod or phone stand helps greatly.
 - Fill as much of the frame as practical with the light source or illuminated target.
 - Avoid mixed lighting scenes when testing a single fixture.
-- Record several seconds of stable footage (trim off the start and end where you pressed the button — FlickerScope's timeline controls let you select only the clean middle segment).
+- Record several seconds of stable footage. Trim off the start and end where you pressed the button; FlickerScope's timeline controls let you select only the clean middle segment.
 - Avoid severe clipping, overexposure, or deep underexposure.
 
 ### Why 240+ fps matters
 
 The usable analysis band is constrained by the Nyquist limit, which is half the effective frame rate. At 240 fps, the Nyquist limit is 120 Hz. Frequencies near Nyquist are less reliable than frequencies comfortably below it, especially in a camera-based workflow.
 
-For the most common consumer use case — screening mains-powered LED lighting — the dominant flicker component is often around 100 Hz on 50 Hz mains or 120 Hz on 60 Hz mains. Captured at 240 fps, 120 Hz lies at the Nyquist limit. In this situation, **modulation depth is the primary screening metric** (IEEE 1789 low-risk guidance is about 8% at 100 Hz and about 10% at 120 Hz). Harmonic structure, timing jitter, and exact waveform shape carry lower confidence near the sampling limit and should be treated as secondary diagnostics. Despite the Nyquist constraint, this still supports a practical low-concern vs. higher-concern judgment aligned with IEEE-style modulation thresholds at the detected frequency.
+For the most common consumer use case, screening mains-powered LED lighting, the dominant flicker component is often around 100 Hz on 50 Hz mains or 120 Hz on 60 Hz mains. Captured at 240 fps, 120 Hz lies at the Nyquist limit. In this situation, **modulation depth is the primary screening metric** (IEEE 1789 low-risk guidance is about 8% at 100 Hz and about 10% at 120 Hz). Harmonic structure, timing jitter, and exact waveform shape carry lower confidence near the sampling limit and should be treated as secondary diagnostics. Despite the Nyquist constraint, this still supports a practical low-concern vs. higher-concern judgment aligned with IEEE-style modulation thresholds at the detected frequency.
 
 ### Practical advice
 
@@ -218,21 +218,6 @@ Recommended approach:
 - better to warn than to overclaim,
 - better to label uncertain than to imply precision,
 - better to support engineering judgment than to pretend certification.
-
-***
-
-## Technical stack
-
-- **Vite** for build and development tooling
-- **React 19** for UI
-- **TypeScript** for application code
-- **Tailwind CSS v4** for styling
-- **@base-ui/react** for accessible UI primitives
-- **uPlot** for fast diagnostic charts
-- **@phosphor-icons/react** for iconography
-- **Mediabunny** for browser-side demuxing on top of WebCodecs
-- **fft.js** for spectral analysis
-- **OffscreenCanvas** for frame processing
 
 ***
 
