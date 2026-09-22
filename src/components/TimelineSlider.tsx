@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Scissors } from 'lucide-react';
+import { Scissors } from '@phosphor-icons/react';
 import type { Segment } from '../app/types';
 
 

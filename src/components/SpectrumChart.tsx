@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
-import { RotateCcw, AlertTriangle } from 'lucide-react';
+import { ArrowCounterClockwise, Warning } from '@phosphor-icons/react';
 
 type Props = {
   freqs: number[];
@@ -224,7 +224,7 @@ export function SpectrumChart({ freqs, powers, peakHz, confidence, className }: 
               onClick={handleReset}
               className="flex items-center gap-1 rounded bg-panel/90 px-2 py-1 text-sm text-text-dim transition hover:text-text-main"
             >
-              <RotateCcw className="size-3" />
+              <ArrowCounterClockwise className="size-3" />
               Reset zoom
             </button>
           )}
@@ -232,7 +232,7 @@ export function SpectrumChart({ freqs, powers, peakHz, confidence, className }: 
       </div>
       {lowConfidence && (
         <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 rounded bg-warning/15 px-2 py-1 text-sm text-warning">
-          <AlertTriangle className="size-3" />
+          <Warning className="size-3" />
           Low confidence
         </div>
       )}

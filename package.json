@@ -10,21 +10,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@base-ui/react": "^1.0.0-rc.0",
+    "@base-ui/react": "^1.8.0",
+    "@phosphor-icons/react": "^2.1.10",
     "fft.js": "^4.0.4",
-    "lucide-react": "^1.23.0",
-    "mediabunny": "^1.50.4",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "uplot": "^1.6.31"
+    "mediabunny": "^1.59.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "uplot": "^1.6.32"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.2",
-    "@types/react": "^19.1.4",
-    "@types/react-dom": "^19.1.5",
-    "@vitejs/plugin-react": "^4.5.2",
-    "tailwindcss": "^4.3.2",
-    "typescript": "~5.7.3",
-    "vite": "^6.4.3"
+    "@phosphor-icons/core": "^2.1.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.0"
   }
 }

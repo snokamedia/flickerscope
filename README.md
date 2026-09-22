@@ -229,7 +229,7 @@ Recommended approach:
 - **Tailwind CSS v4** for styling
 - **@base-ui/react** for accessible UI primitives
 - **uPlot** for fast diagnostic charts
-- **lucide-react** for iconography
+- **@phosphor-icons/react** for iconography
 - **Mediabunny** for browser-side demuxing on top of WebCodecs
 - **fft.js** for spectral analysis
 - **OffscreenCanvas** for frame processing

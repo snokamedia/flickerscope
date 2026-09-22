@@ -931,7 +931,7 @@ The MP_proxy is explicitly labeled as a **video‑based approximation** because:
 | **Tailwind CSS** | 4 | Utility‑first CSS for rapid prototyping; the `@theme` directive maps directly to the measurement‑instrument palette. |
 | **@base‑ui/react** | 1.0.0‑rc.0 | Unstyled, accessible React primitives. Used for Tooltip (stat explanations), Popover (detailed metric definitions), Slider (timeline range), Tabs (analysis/therapy views), Accordion (measurement details). |
 | **uPlot** | ~1.6 | Minimal‑footprint charting library. Chosen over Chart.js (larger bundle, heavier abstraction) and ECharts (too large) for its small size (~40 KB) and direct canvas API. |
-| **lucide‑react** | ~0.400 | Lightweight icon library with tree‑shakable imports. |
+| **@phosphor-icons/react** | ~0.6–1.0 | Comprehensive icon library with tree-shakable imports and multiple weights. |
 | **fft.js** | ~4.6 | Pure‑JS FFT with no native dependencies and zero‑allocation API compatible with Web Workers. |
 | **Mediabunny** | latest | As described in [Section 2](#2-video-decoding-and-metadata-pipeline). |
 

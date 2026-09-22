@@ -1,7 +1,8 @@
 import { Popover } from '@base-ui/react/popover';
 import {
-  AlertTriangle, CheckCircle2, HelpCircle, AlertOctagon, Activity, ShieldCheck, Info, MinusCircle,
-} from 'lucide-react';
+  Warning, CheckCircle, Question, WarningOctagon, Waveform, Timer, Eye,
+  ShieldCheck, Info, MinusCircle,
+} from '@phosphor-icons/react';
 import type { FlickerMetrics, MpProxyResult } from '../app/types';
 
 type Props = {
@@ -20,22 +21,22 @@ const VERDICT_CONFIG = {
     color: 'bg-safe/10 text-safe border-safe/20',
   },
   'low-risk': {
-    icon: <CheckCircle2 className="size-5 text-safe" />,
+    icon: <CheckCircle className="size-5 text-safe" />,
     label: 'Low risk',
     color: 'bg-safe/10 text-safe border-safe/20',
   },
   elevated: {
-    icon: <AlertTriangle className="size-5 text-warning" />,
+    icon: <Warning className="size-5 text-warning" />,
     label: 'Elevated concern',
     color: 'bg-warning/10 text-warning border-warning/20',
   },
   high: {
-    icon: <AlertOctagon className="size-5 text-danger" />,
+    icon: <WarningOctagon className="size-5 text-danger" />,
     label: 'High concern',
     color: 'bg-danger/10 text-danger border-danger/20',
   },
   uncertain: {
-    icon: <HelpCircle className="size-5 text-text-dim" />,
+    icon: <Question className="size-5 text-text-dim" />,
     label: 'Uncertain',
     color: 'bg-text-dim/10 text-text-dim border-text-dim/20',
   },
@@ -77,8 +78,8 @@ export function ResultsPanel({ results }: Props) {
                 <p key={i} className="flex items-start gap-1.5 text-sm text-text-muted">
                   <span className="mt-0.5 shrink-0">
                     {results.verdict === 'high' || results.verdict === 'elevated'
-                      ? <AlertOctagon className="size-3 text-danger" />
-                      : <AlertTriangle className="size-3 text-warning" />
+                      ? <WarningOctagon className="size-3 text-danger" />
+                      : <Warning className="size-3 text-warning" />
                     }
                   </span>
                   {n}
@@ -91,31 +92,31 @@ export function ResultsPanel({ results }: Props) {
 
       {/* ---- IEEE 1789 position indicator ---- */}
       {results.verdict !== 'none' && (
-      <StatPanel icon={<Info className="size-3.5" />} title="IEEE 1789-2015 risk assessment">
-        <div className="space-y-1 text-sm text-text-muted">
-          <p>
-            Modulation {results.modulationPercent.toFixed(1)}% at{' '}
-            {results.frequencyHz.toFixed(1)} Hz →
-            {' '}<strong className="text-text-main">{vc.label}</strong>
-          </p>
-          <ul className="list-inside list-disc space-y-0.5 text-sm">
-            <li>
-              Low frequency (&lt;90 Hz): NOEL = 0.01 × f, Low-risk = 0.08 × f
-            </li>
-            <li>
-              High frequency (≥90 Hz): NOEL = 0.0333 × f, Low-risk = 0.08 × f
-            </li>
-            <li>
-              Measurements from camera video — for screening only, not formal certification
-            </li>
-          </ul>
-        </div>
-      </StatPanel>
+        <StatPanel icon={<Info className="size-3.5" />} title="IEEE 1789-2015 risk assessment">
+          <div className="space-y-1 text-sm text-text-muted">
+            <p>
+              Modulation {results.modulationPercent.toFixed(1)}% at{' '}
+              {results.frequencyHz.toFixed(1)} Hz →
+              {' '}<strong className="text-text-main">{vc.label}</strong>
+            </p>
+            <ul className="list-inside list-disc space-y-0.5 text-sm">
+              <li>
+                Low frequency (&lt;90 Hz): NOEL = 0.01 × f, Low-risk = 0.08 × f
+              </li>
+              <li>
+                High frequency (≥90 Hz): NOEL = 0.0333 × f, Low-risk = 0.08 × f
+              </li>
+              <li>
+                Measurements from camera video — for screening only, not formal certification
+              </li>
+            </ul>
+          </div>
+        </StatPanel>
       )}
 
       {/* ---- Spectrum peaks ---- */}
       {results.topPeaks.length > 0 && (
-        <StatPanel icon={<Activity className="size-3.5" />} title="Notable spectrum peaks">
+        <StatPanel icon={<Waveform className="size-3.5" />} title="Notable spectrum peaks">
           <div className="space-y-0.5">
             {results.topPeaks.slice(0, 5).map((p, i) => {
               const pct = Math.min(100, p.normalizedMagnitude * 100);
@@ -147,7 +148,7 @@ export function ResultsPanel({ results }: Props) {
             <div className="mt-2 space-y-0.5 border-t border-border pt-2">
               {results.spectralNotes.map((n, i) => (
                 <p key={i} className="flex items-start gap-1 text-sm text-text-dim">
-                  <Activity className="mt-0.5 size-3 shrink-0" />
+                  <Waveform className="mt-0.5 size-3 shrink-0" />
                   {n}
                 </p>
               ))}
@@ -158,7 +159,7 @@ export function ResultsPanel({ results }: Props) {
 
       {/* ---- Timing ---- */}
       {results.timing && results.verdict !== 'none' && (
-        <StatPanel icon={<Activity className="size-3.5" />} title="Timing">
+        <StatPanel icon={<Timer className="size-3.5" />} title="Timing">
           <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
             <StatWithPopover
               label="Duty cycle"
@@ -205,7 +206,7 @@ export function ResultsPanel({ results }: Props) {
 
       {/* ---- MP proxy ---- */}
       {results.mpProxy && (
-        <StatPanel icon={<Activity className="size-3.5" />} title="MP proxy (perceptual flicker estimate)">
+        <StatPanel icon={<Eye className="size-3.5" />} title="MP proxy (perceptual flicker estimate)">
           <MpProxySection mp={results.mpProxy} />
         </StatPanel>
       )}
@@ -215,7 +216,7 @@ export function ResultsPanel({ results }: Props) {
         <div className="space-y-1 rounded-lg border border-border bg-panel p-3">
           {results.notes.map((n, i) => (
             <p key={i} className="flex items-start gap-1.5 text-sm text-text-muted">
-              <AlertTriangle className="mt-0.5 size-3 shrink-0 text-warning" />
+              <Warning className="mt-0.5 size-3 shrink-0 text-warning" />
               {n}
             </p>
           ))}
@@ -305,7 +306,7 @@ function MpProxySection({ mp }: { mp: MpProxyResult }) {
             <div className="mt-1.5 space-y-0.5">
               {mp.notes.map((n, i) => (
                 <p key={i} className="flex items-start gap-1 text-xs text-text-dim">
-                  <AlertTriangle className="mt-0.5 size-2.5 shrink-0 text-warning" />
+                  <Warning className="mt-0.5 size-2.5 shrink-0 text-warning" />
                   {n}
                 </p>
               ))}

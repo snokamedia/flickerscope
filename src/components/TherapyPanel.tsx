@@ -1,3 +1,4 @@
+import { Warning, CheckCircle, XCircle } from '@phosphor-icons/react';
 import type { TherapyReport, TherapyCriterion } from '../app/types';
 import { therapyVerdictColor, therapyVerdictLabel } from '../lib/therapy';
 
@@ -65,9 +66,7 @@ export function TherapyPanel({ report }: Props) {
                 key={i}
                 className="flex items-start gap-2 rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-sm leading-relaxed text-danger"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z" />
-                </svg>
+                <Warning className="mt-0.5 size-3.5 shrink-0" weight="bold" />
                 <span>{flag}</span>
               </div>
             ))}
@@ -78,10 +77,7 @@ export function TherapyPanel({ report }: Props) {
       {/* No red flags */}
       {redFlags.length === 0 && verdict !== 'indeterminate' && (
         <div className="flex items-center gap-2 rounded-lg border border-safe/20 bg-safe/5 px-3 py-2 text-sm text-safe">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
+          <CheckCircle className="size-3.5" weight="bold" />
           <span>No red flags detected. Waveform characteristics are consistent with the 40 Hz protocol.</span>
         </div>
       )}
@@ -98,26 +94,9 @@ const passColors: Record<string, string> = {
 };
 
 const passIcons: Record<string, React.ReactElement> = {
-  true: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-  ),
-  warning: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-      <line x1="12" y1="9" x2="12" y2="13" />
-      <line x1="12" y1="17" x2="12.01" y2="17" />
-    </svg>
-  ),
-  false: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="15" y1="9" x2="9" y2="15" />
-      <line x1="9" y1="9" x2="15" y2="15" />
-    </svg>
-  ),
+  true: <CheckCircle className="size-3.5" weight="bold" />,
+  warning: <Warning className="size-3.5" weight="bold" />,
+  false: <XCircle className="size-3.5" weight="bold" />,
 };
 
 function CriterionCard({ criterion }: { criterion: TherapyCriterion }) {

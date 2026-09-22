@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { WarningCircle, CheckCircle } from '@phosphor-icons/react';
 import type { VideoMetadata } from '../app/types';
 import { getFpsTier } from '../lib/fps-constraints';
 
@@ -7,9 +7,9 @@ type Props = {
 };
 
 const TIER_CONFIG = {
-  reject: { label: 'too low', class: 'text-danger border-danger/30', icon: AlertCircle, iconClass: 'text-danger' },
-  limited: { label: 'limited', class: 'text-warning border-warning/30', icon: AlertCircle, iconClass: 'text-warning' },
-  adequate: { label: 'adequate', class: 'text-safe border-safe/30', icon: CheckCircle2, iconClass: 'text-safe' },
+  reject: { label: 'too low', class: 'text-danger border-danger/30', icon: WarningCircle, iconClass: 'text-danger' },
+  limited: { label: 'limited', class: 'text-warning border-warning/30', icon: WarningCircle, iconClass: 'text-warning' },
+  adequate: { label: 'adequate', class: 'text-safe border-safe/30', icon: CheckCircle, iconClass: 'text-safe' },
 } as const;
 
 export function MetadataPanel({ metadata }: Props) {
@@ -44,13 +44,13 @@ export function MetadataPanel({ metadata }: Props) {
         <Stat
           label="Duration"
           value={`${metadata.duration.toFixed(1)}s`}
-          icon={durationOk ? <CheckCircle2 className="size-3.5 text-safe" /> : <AlertCircle className="size-3.5 text-warning" />}
+          icon={durationOk ? <CheckCircle className="size-3.5 text-safe" /> : <WarningCircle className="size-3.5 text-warning" />}
           valueClass={durationOk ? 'text-safe' : 'text-warning'}
         />
         <Stat
           label="Frames"
           value={`${metadata.frameCount}`}
-          icon={framesOk ? <CheckCircle2 className="size-3.5 text-safe" /> : <AlertCircle className="size-3.5 text-warning" />}
+          icon={framesOk ? <CheckCircle className="size-3.5 text-safe" /> : <WarningCircle className="size-3.5 text-warning" />}
           valueClass={framesOk ? 'text-safe' : 'text-warning'}
         />
       </div>
@@ -60,7 +60,7 @@ export function MetadataPanel({ metadata }: Props) {
           label="Codec"
           value={metadata.codec.toUpperCase()}
           valueClass={codecSupported ? 'text-safe' : 'text-warning'}
-          icon={codecSupported ? <CheckCircle2 className="size-3.5 text-safe" /> : <AlertCircle className="size-3.5 text-warning" />}
+          icon={codecSupported ? <CheckCircle className="size-3.5 text-safe" /> : <WarningCircle className="size-3.5 text-warning" />}
         />
       </div>
     </div>

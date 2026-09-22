@@ -1,4 +1,5 @@
 import { Tabs } from '@base-ui/react/tabs';
+import { Waveform, Star } from '@phosphor-icons/react';
 import type { TherapyReport } from '../app/types';
 import { TherapyPanel } from './TherapyPanel';
 
@@ -17,9 +18,7 @@ export function AnalysisTabs({ therapyReport, children }: Props) {
           value="analysis"
           className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium uppercase tracking-wider text-text-dim transition-colors hover:text-text-main aria-selected:border-b-2 aria-selected:border-accent aria-selected:text-accent"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-          </svg>
+          <Waveform className="size-3.5" weight="bold" />
           Analysis
         </Tabs.Tab>
         {showTherapy && (
@@ -27,9 +26,7 @@ export function AnalysisTabs({ therapyReport, children }: Props) {
             value="therapy"
             className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium uppercase tracking-wider text-text-dim transition-colors hover:text-text-main aria-selected:border-b-2 aria-selected:border-accent aria-selected:text-accent"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z" />
-            </svg>
+            <Star className="size-3.5" weight="bold" />
             Therapy Validation
           </Tabs.Tab>
         )}

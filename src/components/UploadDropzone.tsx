@@ -1,5 +1,5 @@
 import { type DragEvent, type ChangeEvent, useState } from 'react';
-import { Upload, ExternalLink } from 'lucide-react';
+import { UploadSimple, ArrowSquareOut } from '@phosphor-icons/react';
 
 type Props = {
   onFile: (file: File) => void;
@@ -36,7 +36,7 @@ export function UploadDropzone({ onFile, disabled }: Props) {
         }
       `}
     >
-      <Upload className="mx-auto mb-3 size-10 text-text-dim" />
+      <UploadSimple className="mx-auto mb-3 size-10 text-text-dim" />
       <p className="mb-1 text-base font-medium text-text-main">
         Drop a slow motion video here
       </p>
@@ -49,11 +49,11 @@ export function UploadDropzone({ onFile, disabled }: Props) {
         rel="noopener noreferrer"
         className="my-4 flex items-center justify-center gap-1 text-sm text-accent transition-colors hover:text-cyan-300"
       >
-        <ExternalLink className="size-3" />
+        <ArrowSquareOut className="size-3" />
         Capture guide &mdash; how to record the right video
       </a>
       <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-black transition hover:bg-cyan-300 w-full sm:w-auto">
-        <Upload className="size-4" />
+        <UploadSimple className="size-4" />
         Choose file
         <input type="file" accept="video/mp4,video/webm,video/quicktime,video/x-matroska" hidden onChange={handleChange} />
       </label>

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause } from '@phosphor-icons/react';
 
 type Props = {
   videoUrl: string;

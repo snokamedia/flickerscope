@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Accordion } from '@base-ui/react/accordion';
+import { CaretRight } from '@phosphor-icons/react';
 import { UploadDropzone } from './components/UploadDropzone';
 import { MetadataPanel } from './components/MetadataPanel';
 import { PreviewPlayer } from './components/PreviewPlayer';
@@ -199,7 +200,7 @@ export default function App() {
           <Accordion.Item value="about" className="border-b border-border/0">
             <Accordion.Header>
               <Accordion.Trigger className="group flex w-full items-center justify-center gap-1 py-1 text-sm text-text-dim transition hover:text-text-muted">
-                <span className="inline-block transition-transform group-data-[panel-open]:rotate-90">▶</span>
+                <CaretRight className="size-3.5 transition-transform group-data-[panel-open]:rotate-90" />
                 About these measurements
               </Accordion.Trigger>
             </Accordion.Header>

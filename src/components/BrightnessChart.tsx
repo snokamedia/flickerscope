@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
-import { RotateCcw } from 'lucide-react';
+import { ArrowCounterClockwise } from '@phosphor-icons/react';
 import type { LuminanceSample } from '../app/types';
 
 type Props = {
@@ -100,7 +100,7 @@ export function BrightnessChart({ data, className }: Props) {
           onClick={handleReset}
           className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded bg-panel/90 px-2 py-1 text-sm text-text-dim transition hover:text-text-main"
         >
-          <RotateCcw className="size-3" />
+          <ArrowCounterClockwise className="size-3" />
           Reset zoom
         </button>
       )}
