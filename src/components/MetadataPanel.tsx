@@ -34,11 +34,13 @@ export function MetadataPanel({ metadata }: Props) {
           help={
             metadata.isVfrLikely
               ? 'variable frame rate'
-              : Math.abs(fps - metadata.fpsAverage) > 5
-                ? `container reports ${metadata.fpsAverage.toFixed(0)} fps`
-                : metadata.fpsNominal
-                  ? `nominal ${metadata.fpsNominal} fps`
-                  : undefined
+              : metadata.frameRateIsConstant === false
+                ? 'CFR with dropped frames'
+                : Math.abs(fps - metadata.fpsAverage) > 5
+                  ? `average packet rate ${metadata.fpsAverage.toFixed(0)} fps`
+                  : metadata.fpsNominal
+                    ? `underlying ${metadata.fpsNominal.toFixed(2)} fps`
+                    : undefined
           }
         />
         <Stat

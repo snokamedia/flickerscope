@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { openVideoFile } from '../media/mediabunny-input';
-import { getTrackFrameRateInfo, detectVariableFrameRate } from '../media/frame-extractor';
+import { getTrackFrameRateInfo } from '../media/frame-extractor';
 import type { VideoMetadata } from '../app/types';
 
 export type VideoFileState = {
@@ -30,17 +30,18 @@ export function useVideoFile() {
 
       const codecInfo = await videoTrack.getCodec();
       const codec = codecInfo ?? 'unknown';
-      const { fpsAverage, packetCount } = await getTrackFrameRateInfo(videoTrack);
-      const { isVfrLikely, fpsDecoded } = await detectVariableFrameRate(videoTrack);
+      const rateInfo = await getTrackFrameRateInfo(videoTrack);
       const displayWidth = await videoTrack.getDisplayWidth();
       const displayHeight = await videoTrack.getDisplayHeight();
 
       const metadata: VideoMetadata = {
         duration,
-        fpsAverage,
-        fpsDecoded,
-        frameCount: packetCount,
-        isVfrLikely,
+        fpsAverage: rateInfo.fpsAverage,
+        fpsDecoded: rateInfo.fpsDecoded,
+        frameCount: rateInfo.frameCount,
+        isVfrLikely: rateInfo.isVfrLikely,
+        frameRateIsConstant: rateInfo.frameRateIsConstant,
+        fpsNominal: rateInfo.underlyingFrameRate ?? undefined,
         width: displayWidth,
         height: displayHeight,
         codec,

@@ -2,71 +2,52 @@ import { VideoSampleSink, InputVideoTrack } from 'mediabunny';
 import { extractLuminanceFromSample } from './luminance';
 import type { LuminanceSample, VideoMetadata } from '../app/types';
 
+export type TrackFrameRateInfo = {
+  /**
+   * Best-guess intended frame rate from Mediabunny's lattice fit
+   * (underlying CFR rate when confident, else snapped/median fallback).
+   * Used for tier gates and UI display — never file container metadata.
+   */
+  fpsDecoded: number;
+  /** Average frames/sec across probed packet timestamps. */
+  fpsAverage: number;
+  /** True when no consistent underlying CFR lattice was found (true VFR). */
+  isVfrLikely: boolean;
+  /** True only for clean CFR with no dropped frames. */
+  frameRateIsConstant: boolean;
+  /** Total packets inspected (full file when scanning with Infinity). */
+  frameCount: number;
+  /** Confirmed underlying CFR rate, or null for VFR. */
+  underlyingFrameRate: number | null;
+};
+
 /**
- * Average frame rate from demuxer packet statistics.
+ * Frame-rate metadata from Mediabunny's computeFrameRateMetrics().
  *
- * Uses Mediabunny's computePacketStats().averagePacketRate which examines the
- * container-level packet timestamps rather than decoded sample timestamps.
- * This avoids timing jitter introduced by the decode pipeline and provides
- * a stable average frame rate even for VFR content.
+ * Uses encoded-packet timestamps only (metadataOnly — no decode). The
+ * library models inter-frame gaps as integer multiples of one period
+ * (handles dropped frames), requires a high inlier ratio, and snaps to
+ * known rates including NTSC (239.76, 119.88, …). This replaces both
+ * container averagePacketRate and our old 180-frame decoded CV heuristic.
+ *
+ * targetPacketCount: Infinity scans the whole file so frameCount and
+ * frameRateIsConstant are not limited to a short prefix.
  */
 export async function getTrackFrameRateInfo(
   videoTrack: InputVideoTrack,
-): Promise<{ fpsAverage: number; packetCount: number }> {
-  const stats = await videoTrack.computePacketStats();
+): Promise<TrackFrameRateInfo> {
+  const metrics = await videoTrack.computeFrameRateMetrics({
+    targetPacketCount: Infinity,
+  });
+
   return {
-    fpsAverage: stats.averagePacketRate,
-    packetCount: stats.packetCount,
+    fpsDecoded: metrics.bestGuessFrameRate,
+    fpsAverage: metrics.averageFrameRate,
+    isVfrLikely: metrics.underlyingFrameRate === null,
+    frameRateIsConstant: metrics.frameRateIsConstant,
+    frameCount: metrics.probedPacketCount,
+    underlyingFrameRate: metrics.underlyingFrameRate,
   };
-}
-
-/**
- * Variable frame rate (VFR) detection via inter-frame interval variability.
- *
- * Decodes the first `sampleCount` frames and measures the coefficient of
- * variation (CV = σ / μ) of consecutive timestamp deltas.
- *
- * The 0.02 CV threshold is a heuristic:
- *   - CFR content (e.g. 59.94 Hz) typically has CV < 0.001
- *   - Mild VFR (pulldown, edit gaps) typically has CV 0.005–0.02
- *   - True VFR (phone slow-motion with dropped frames) has CV > 0.02
- *
- * NumPy-style MAD or robust CV could be more outlier-resistant, but sample
- * timestamps from Mediabunny reflect media timeline position, not decode
- * jitter, so raw CV is reliable for this use case.
- */
-export async function detectVariableFrameRate(
-  videoTrack: InputVideoTrack,
-  sampleCount = 180,
-): Promise<{ isVfrLikely: boolean; variability: number; fpsDecoded: number }> {
-  const sink = new VideoSampleSink(videoTrack);
-  const ts: number[] = [];
-
-  for await (const sample of sink.samples()) {
-    ts.push(sample.timestamp);
-    sample.close();
-    if (ts.length >= sampleCount) break;
-  }
-
-  if (ts.length < 3) return { isVfrLikely: false, variability: 0, fpsDecoded: 0 };
-
-  const dts: number[] = [];
-  for (let i = 1; i < ts.length; i++) {
-    const dt = ts[i] - ts[i - 1];
-    if (dt > 0) dts.push(dt);
-  }
-
-  const mean = dts.reduce((a, b) => a + b, 0) / dts.length;
-  const variance = dts.reduce((a, b) => a + (b - mean) ** 2, 0) / dts.length;
-  const cv = Math.sqrt(variance) / mean;
-
-  dts.sort((a, b) => a - b);
-  const mid = Math.floor(dts.length / 2);
-  const medianDt = dts.length % 2 !== 0
-    ? dts[mid]
-    : (dts[mid - 1] + dts[mid]) / 2;
-
-  return { isVfrLikely: cv > 0.02, variability: cv, fpsDecoded: 1 / medianDt };
 }
 
 /**

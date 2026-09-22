@@ -90,7 +90,7 @@ The `BlobSource` constructor accepts a `File` or `Blob`. The optional second par
 
 **Codec support check:** The application checks whether the reported codec string (e.g., `'avc'`, `'hevc'`, `'vp9'`, `'av1'`) is in the set of known supported codecs. If not, a warning badge is shown but analysis is still attempted, since Mediabunny's runtime `canDecode` check may be more permissive than string matching.
 
-**Decoded frame rate (`fpsDecoded`):** In addition to container-level packet statistics, the application decodes the first 180 frames and computes the median inter-frame interval from decoded sample timestamps (see §4.4). This `fpsDecoded` value is the primary frame rate used for the tier gate and the metadata panel, because some devices — particularly iPhones — repackage slow-motion footage with a container playback rate that differs from the actual capture rate (e.g., 240 fps footage showing as 30 fps in container metadata).
+**Frame rate (`fpsDecoded`):** The application uses Mediabunny's `computeFrameRateMetrics()` on encoded-packet timestamps (no decode) to estimate the intended frame rate and detect VFR (see §4.1). This `fpsDecoded` value is the primary frame rate for the tier gate and the metadata panel, because some devices — particularly iPhones — repackage slow-motion footage with a container playback rate that differs from the actual capture rate (e.g., 240 fps footage showing as 30 fps in container metadata). The lattice fit reads actual packet cadence rather than trusting that container rate.
 
 ### 2.4 FPS constraint tiers
 
@@ -147,65 +147,55 @@ The canvas is downsampled to 64 × 36 pixels (a 2.3 MP → 2.3 kP reduction). Th
 
 ## 4. Frame rate measurement
 
-### 4.1 Average frame rate (packet statistics)
+### 4.1 Frame-rate metrics (`computeFrameRateMetrics`)
 
-The primary method for measuring average frame rate uses Mediabunny's `computePacketStats()` API:
-
-```typescript
-const stats = await videoTrack.computePacketStats();
-const fpsAverage = stats.averagePacketRate;
-```
-
-This examines **container‑level packet timestamps**, not decoded sample timestamps. Container timestamps are set by the recording device at mux time and reflect the intended frame cadence. This approach:
-
-- Avoids timing jitter introduced by the decode pipeline (decode latency, frame reordering, dropped frames on slow devices).
-- Provides a stable average even for VFR content.
-- Is a single async call — no sample iteration required.
-
-### 4.2 Variable frame rate (VFR) detection
-
-A separate function decodes the first 180 frames and computes the coefficient of variation (CV) of inter‑frame intervals:
-
-```
-CV = σ(dt) / μ(dt)
-```
-
-Where `dt_i = timestamp_i - timestamp_{i-1}` for all positive intervals. The **0.02 CV threshold** is a heuristic:
-
-| CV range | Classification | Typical cause |
-|----------|---------------|---------------|
-| < 0.001 | Constant frame rate (CFR) | Professional cameras, fixed‑rate recording |
-| 0.001 – 0.005 | Near‑CFR | Most phone slow‑motion modes |
-| 0.005 – 0.02 | Mild VFR | 3:2 pulldown, edit gaps, variable‑rate encoders |
-| > 0.02 | VFR | Dropped frames, hybrid phone modes, screen recordings |
-
-The 180‑frame sample (≈ 0.75 s at 240 fps) is sufficient for classification because VFR cadence patterns in phone videos typically repeat over short windows. The sample uses the **first** 180 frames, which may miss cadence changes later in longer clips — a documented limitation.
-
-### 4.3 Design evolution
-
-The original implementation decoded 30 samples and computed `1 / mean(dt)`. This was changed after the Perplexity review identified three issues:
-
-1. **Sample iteration is expensive** — 30 samples was too few for robust statistics, and increasing the count (to 100–300) would have made metadata loading slow.
-2. **Container timestamps are more reliable** for average‑rate measurement.
-3. **Mean is sensitive to outliers** — a single dropped frame shifts the estimate; median or trimmed statistics are preferred.
-
-### 4.4 Decoded frame rate (`fpsDecoded`)
-
-The `detectVariableFrameRate()` function was extended to also return a decoded frame rate, computed from the same 180 decoded samples:
+Metadata frame rate and VFR detection use Mediabunny's `computeFrameRateMetrics()` (encoded-packet timestamps only — `metadataOnly`, no decode):
 
 ```typescript
-dts.sort((a, b) => a - b);
-const medianDt = dts.length % 2 !== 0
-  ? dts[mid]
-  : (dts[mid - 1] + dts[mid]) / 2;
-const fpsDecoded = 1 / medianDt;
+const metrics = await videoTrack.computeFrameRateMetrics({
+  targetPacketCount: Infinity,
+});
+const fpsDecoded = metrics.bestGuessFrameRate;
+const fpsAverage = metrics.averageFrameRate;
+const isVfrLikely = metrics.underlyingFrameRate === null;
+const frameRateIsConstant = metrics.frameRateIsConstant;
 ```
 
-This solves a real-world problem: **iOS slow-motion footage**. When an iPhone records 240 fps slow-motion video, the container metadata often reports a playback rate of 30 fps (the default playback speed for slow-motion clips). The container-level `fpsAverage` from `computePacketStats()` reads this 30 fps value, which would cause FlickerScope's tier gate to reject the video as insufficient. By measuring the actual decoded frame timestamps — which reflect the true capture cadence — `fpsDecoded` correctly reports 240 fps.
+The library:
 
-The `fpsDecoded` value is stored in `VideoMetadata` and used as the primary frame rate for the tier gate, the metadata panel display, and the progress bar estimate during sample extraction. When both `fpsDecoded` and `fpsAverage` are available and differ by more than 5 fps, the metadata panel shows both values with an explanatory note.
+- Never trusts container rate metadata; it only inspects actual packet timestamps.
+- Models each inter-frame gap as an **integer multiple** of one frame period (handles dropped frames).
+- Requires ≥ 98% inliers before accepting an underlying CFR lattice.
+- Snaps to known rates including NTSC (23.976, 29.97, 59.94, 119.88, 239.76) when the measured cadence fits.
+- Returns `underlyingFrameRate: null` when no consistent lattice exists (true VFR).
 
-The worker's `computeEffectiveSampleRate()` (see §7) independently computes the sample rate from the segment timestamps for FFT use. If the user trims to a segment, the per-segment rate may differ slightly from the clip-wide `fpsDecoded`.
+`targetPacketCount: Infinity` scans the whole file so `frameCount` (`probedPacketCount`) and `frameRateIsConstant` are not limited to a short prefix. This is still far cheaper than decoding frames.
+
+Field mapping:
+
+| Field | Source | Use |
+|-------|--------|-----|
+| `fpsDecoded` | `bestGuessFrameRate` | Tier gate, primary UI display |
+| `fpsAverage` | `averageFrameRate` | Secondary / discrepancy note |
+| `isVfrLikely` | `underlyingFrameRate === null` | VFR help text |
+| `frameRateIsConstant` | `frameRateIsConstant` | “CFR with dropped frames” note |
+| `frameCount` | `probedPacketCount` | Frames stat + progress estimate |
+| `fpsNominal` | `underlyingFrameRate` | “underlying X fps” help |
+
+### 4.2 Design evolution
+
+Earlier versions used `computePacketStats().averagePacketRate` for average rate and `detectVariableFrameRate()` (decode first 180 frames → CV of Δt > 0.02, `fpsDecoded = 1/medianDt)` for primary rate and VFR. That worked for iOS slow-motion (container can report 30 fps while packet cadence is 240) but had limits:
+
+1. Decoding 180 frames made metadata load expensive.
+2. CV > 0.02 was an arbitrary threshold; mild noise and true VFR were easy to confuse.
+3. Median of the first 180 frames did not snap to NTSC rates and ignored dropped-frame lattice structure.
+4. Only a short prefix was classified.
+
+`computeFrameRateMetrics` addresses all four without decode. **iOS slow-motion** still works: lattice fit reads actual packet timestamps (true capture cadence), not the container playback rate.
+
+### 4.3 Analysis sample rate (unchanged)
+
+The worker’s `computeEffectiveSampleRate()` (see §7) independently computes the sample rate from the **extracted segment** timestamps for FFT use. Track-level metrics do not replace that — a trimmed analysis window may differ slightly from clip-wide `fpsDecoded`.
 
 ---
 
@@ -1011,9 +1001,9 @@ The 40 Hz therapy validation rubric is based on published research criteria for 
 
 ### 18.6 Frame rate detection
 
-The VFR detection scans only the first 180 frames. For videos with time‑segment cadence changes (e.g., hybrid phone modes that switch frame rate mid‑clip), this initial sample may misclassify the content. A more robust approach would resample the VFR check across multiple windows or process the entire clip.
+VFR classification uses `computeFrameRateMetrics().underlyingFrameRate === null` over the **entire** packet timestamp set (`targetPacketCount: Infinity`), not a short decoded prefix. Cadence changes mid-clip can still yield a null lattice (correctly treated as VFR) or a lattice that fits the dominant grid; `frameRateIsConstant` additionally flags CFR with dropped frames.
 
-**iOS Photos reprocessing:** The `fpsDecoded` feature (§4.4) addresses the case where iPhone slow-motion container metadata reports 30 fps while the actual capture rate is 240 fps. However, if the user uploads directly from the **Photos library** (rather than from the Files app), iOS may serve a genuinely reprocessed video with different frame timing — not just different metadata. The capture guide now directs iOS users to save to Files first (see §18.12).
+**iOS Photos reprocessing:** The `fpsDecoded` feature (§4.1) addresses the case where iPhone slow-motion container metadata reports 30 fps while the actual capture rate is 240 fps. However, if the user uploads directly from the **Photos library** (rather than from the Files app), iOS may serve a genuinely reprocessed video with different frame timing — not just different metadata. The capture guide now directs iOS users to save to Files first (see §18.12).
 
 ### 18.7 The worker bundle
 
@@ -1099,17 +1089,17 @@ concNorm = clamp((concentration − 0.3) / 0.65, 0, 1)
 
 The normalization empirically maps a typical noise floor ratio of ~0.3 to 0 and a tight flicker peak ratio of ~0.95 to 1.0. Unlike PNR, this factor is unaffected by the absolute power level — two signals with identical PNR but different spectral widths will score differently.
 
-### 18.12 Decoded frame rate on iOS (fpsDecoded)
+### 18.12 Frame rate on iOS (`fpsDecoded`)
 
-The `fpsDecoded` feature (§4.4) solves a real-world failure mode specific to **iPhone slow-motion footage**, but this workaround has its own limitations:
+The `fpsDecoded` feature (§4.1) solves a real-world failure mode specific to **iPhone slow-motion footage**, but limitations remain:
 
-1. **Only works when decoded timestamps are available.** If Mediabunny's `VideoSampleSink` cannot decode frames (e.g., unsupported codec, encrypted stream), the fallback `fpsAverage` is used — which is the container-level 30 fps value that triggered the false rejection in the first place.
+1. **Needs valid packet timestamps.** Frame rate comes from Mediabunny’s encoded-packet timestamp lattice (`computeFrameRateMetrics`), not decode. If the demuxer cannot read the track, load fails before the tier gate. There is no separate `fpsAverage`-only decode fallback path.
 
-2. **iOS Photos app reprocessing remains an issue.** When a user uploads directly from the Photos library via the browser file picker, iOS may serve a reprocessed copy of the video rather than the original capture file. This reprocessed copy can have genuinely different frame timing — not just metadata — because iOS re-encodes the video. The `fpsDecoded` check reads the decoded timestamps of this reprocessed copy, which may not match the original capture.
+2. **iOS Photos app reprocessing remains an issue.** When a user uploads directly from the Photos library via the browser file picker, iOS may serve a reprocessed copy of the video rather than the original capture file. This reprocessed copy can have genuinely different frame timing — not just metadata — because iOS re-encodes the video. The lattice fit reads packet timestamps of whatever file was uploaded.
 
    **Mitigation:** The app's capture guide now recommends iPhone users save the video to the **Files** app and upload from there, bypassing the Photos reprocessing pipeline. Additionally, disabling "Optimize iPhone Storage" in iCloud Photos settings reduces the chance of proxy files being served.
 
-3. **Limited sample window.** The fpsDecoded rate is computed from the first 180 frames only. For unusual videos that have segment-dependent frame rates (e.g., hybrid phone modes that switch cameras mid-recording), this initial sample may not reflect the full clip.
+3. **Whole-file scan.** Metrics use `targetPacketCount: Infinity` so VFR/drop detection is not limited to a prefix. That is still metadata-only (no frame decode) but costs a full packet walk on large files.
 
 ---
 

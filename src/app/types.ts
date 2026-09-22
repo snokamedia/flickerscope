@@ -1,10 +1,16 @@
 export type VideoMetadata = {
   duration: number;
+  /** Confirmed underlying CFR rate from frame-timestamp lattice fit, if any. */
   fpsNominal?: number;
+  /** Average frames/sec across probed packet timestamps. */
   fpsAverage: number;
+  /** Best-guess intended frame rate (tier gates / primary display). */
   fpsDecoded: number;
   frameCount: number;
+  /** True when no consistent underlying CFR lattice was found. */
   isVfrLikely: boolean;
+  /** True only for clean CFR with no dropped frames. */
+  frameRateIsConstant?: boolean;
   width: number;
   height: number;
   codec: string;
